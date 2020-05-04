@@ -1,0 +1,112 @@
+/* Remove the navbar's default margin-bottom and rounded borders */ 
+.navbar {
+    margin-bottom: 0;
+    border-radius: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,1) 8%,rgba(255,255,255,1) 21%,rgba(196,196,196,1) 100%);
+    border: none;
+    border-bottom: solid 5px #315A9D;
+}
+.navbar-nav li a:not(.active):hover{
+    color: black;
+}
+
+/* Set height of the grid so .sidenav can be 100% (adjust as needed) */
+.row.content {height:91.5vh}
+
+/* Set gray background color and 100% height */
+#sidebar {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background-color: #f8f8f8;
+    height: 100%;
+    border-right: 1px #e5e5e5 solid;
+}
+
+#sidebar li{
+    border-bottom: 1px #e5e5e5 solid;
+}
+#sidebar li a{
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: #9d9d9d;
+    text-shadow: 0 -1px 0 rgba(0,0,0,.25);
+}
+/* On small screens, set height to 'auto' for sidenav and grid */
+@media screen and (max-width: 767px) {
+    .sidenav {
+        height: auto;
+        padding: 15px;
+    }
+    .row.content {height:auto;} 
+}
+.nav-pills > li.active > a, .nav-pills > li.active > a:focus, .nav-pills > li.active > a:hover {
+    text-decoration: none;
+    background-color: #eee;
+    color: black;
+}
+
+.modal-body {
+    padding: 25px;
+    height: 50em;
+    overflow: auto;
+}
+
+#logo-link{
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.modal-dialog{
+    width: 90%;
+}
+
+table {table-layout:auto}
+td {overflow:hidden; white-space:nowrap}  
+
+.table > tbody > tr > td, .table > tbody > tr > th, .table > tfoot > tr > td, .table > tfoot > tr > th, .table > thead > tr > td, .table > thead > tr > th {
+    padding: 2px 8px;
+}
+
+.table > thead > tr > th{
+    background: #E5E5E5;
+}
+
+.export {
+    float: right;
+}
+
+#mapid { height: 50em; }
+
+div#main_container {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+div#wrapper{
+    width:1310px;
+}
+div.block{
+    width: 60px;
+    height: 20px;
+    float: left;
+}
+div.timestrip{
+    width: 1250px;
+    height: 20px;
+    float: left;
+    background-image:url('http://ro-stb-pia.thoreb.com:8080/stc/assets/images/timestrip.png');
+}
+div.timestrip_svg{
+    width: 1250px;
+    height: 20px;
+    float: left;
+    background-image:url('http://ro-stb-pia.thoreb.com:8080/stc/assets/images/timestrip_bg.png');
+}
+#tooltip {
+    background: cornsilk;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 5px;
+}

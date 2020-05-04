@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Thoreb Filter app</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.5.6/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.45/css/bootstrap-datetimepicker.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.45/css/bootstrap-datetimepicker.min.css" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin="" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.12.0/moment.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.45/js/bootstrap-datetimepicker.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.flash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.print.min.js"></script>
+    <script src="https://raw.githubusercontent.com/cowboy/jquery-hashchange/master/jquery.ba-hashchange.min.js"></script>
+    
+    <style>
+        /* Remove the navbar's default margin-bottom and rounded borders */
+        .navbar {
+            margin-bottom: 0;
+            border-radius: 0;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 1) 8%, rgba(255, 255, 255, 1) 21%, rgba(196, 196, 196, 1) 100%);
+            border: none;
+            border-bottom: solid 5px #315A9D;
+        }
+
+        .navbar-nav li a:not(.active):hover {
+            color: black;
+        }
+
+        /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
+        .row.content {
+            height: 91.5vh
+        }
+
+        /* Set gray background color and 100% height */
+        #sidebar {
+            border: 0;
+            padding: 0;
+            margin: 0;
+            background-color: #f8f8f8;
+            height: 100%;
+            border-right: 1px #e5e5e5 solid;
+        }
+
+        #sidebar li {
+            border-bottom: 1px #e5e5e5 solid;
+        }
+
+        #sidebar li a {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            color: #9d9d9d;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, .25);
+        }
+
+        /* On small screens, set height to 'auto' for sidenav and grid */
+        @media screen and (max-width: 767px) {
+            .sidenav {
+                height: auto;
+                padding: 15px;
+            }
+
+            .row.content {
+                height: auto;
+            }
+        }
+
+        .nav-pills>li.active>a,
+        .nav-pills>li.active>a:focus,
+        .nav-pills>li.active>a:hover {
+            text-decoration: none;
+            background-color: #eee;
+            color: black;
+        }
+
+        .modal-body {
+            padding: 25px;
+            height: 50em;
+            overflow: auto;
+        }
+
+        #logo-link {
+            border: 0;
+            padding: 0;
+            margin: 0;
+        }
+
+        .modal-dialog {
+            width: 90%;
+        }
+
+        table {
+            table-layout: auto
+        }
+
+        td {
+            overflow: hidden;
+            white-space: nowrap
+        }
+
+        .table>tbody>tr>td,
+        .table>tbody>tr>th,
+        .table>tfoot>tr>td,
+        .table>tfoot>tr>th,
+        .table>thead>tr>td,
+        .table>thead>tr>th {
+            padding: 2px 8px;
+        }
+
+        .table>thead>tr>th {
+            background: #E5E5E5;
+        }
+
+        .export {
+            float: right;
+        }
+
+        #mapid {
+            height: 50em;
+        }
+
+        div#main_container {
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        div#wrapper {
+            width: 1310px;
+        }
+
+        div.block {
+            width: 60px;
+            height: 20px;
+            float: left;
+        }
+
+        div.timestrip {
+            width: 1250px;
+            height: 20px;
+            float: left;
+            background-image: url('http://ro-stb-pia.thoreb.com:8080/stc/assets/images/timestrip.png');
+        }
+
+        div.timestrip_svg {
+            width: 1250px;
+            height: 20px;
+            float: left;
+            background-image: url('http://ro-stb-pia.thoreb.com:8080/stc/assets/images/timestrip_bg.png');
+        }
+
+        #tooltip {
+            background: cornsilk;
+            border: 1px solid black;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        .dataTables_info {}
+    </style>    
+</head>
+<body>    
+    <nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#home" id="logo-link">
+                    <image src="assets/logo.png">
+                </a>
+            </div>
+        </div>
+    </nav>
+    <div id="container" class="container"></div>
+</body>
+<script data-main="app" src="require.js"></script>
+</html>
