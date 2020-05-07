@@ -3,16 +3,19 @@ define(function(require){
         constructor(){
             this.settings_key = 'filter_app';
             this.page_controllers = {};
-            this.logged_in = true;            
-            this.init_settings().init_dom().nav();            
+            this.logged_in = false;            
+            this.init_settings().init_dom().nav();
+            this.working = 0;    
         }
         nav(){
+            this.ws_working(true);
             if (!this.page) this.page = 'home';
             let url_data =window.location.href.split('#');
             this.base_url = url_data[0];
             this.page = url_data[1] || this.page;
             if (!this.logged_in) this.page = 'login';
             this.render();
+            this.ws_working(false);
         }
         init_settings(){
             let storage_settings = localStorage.getItem(this.settings_key);
@@ -40,9 +43,19 @@ define(function(require){
             });
             return this;
         }    
+        show_menu(){
+
+        }
         ws_working(is_working=false){
-            let ico = (is_working)?'⏳':'🏴󠁢󠁲󠁧󠁯󠁿';
-            this.dom_elements.src_ico.html(ico);
+            if (is_working) this.working++;
+            else this.working--;
+            let show = true;
+            if (this.working <= 0){
+                this.working = 0;
+                show = false;
+            }
+            if (show) $('#loader').show();
+            else $('#loader').hide();
         }
         ws_call(data){            
             let call_url =  `${this.call_url}ws`;
@@ -69,13 +82,15 @@ define(function(require){
             return this;
         }        
         get_view(view,done){
+            this.ws_working(true);
             if (view){
                 view = view.split('.').join('');
                 view = this.base_url+'views/'+view+'.html';
             } 
             if (!this.views) this.views = {};
             if (typeof this.views[view] !=='undefined'){
-                done(this.views[view]);
+                this.ws_working(false);
+                done(this.views[view]);                
                 return true;
             }
             fetch(view)               
@@ -87,10 +102,12 @@ define(function(require){
                 }                    
             }).then((file_data)=>{
                 this.views[view] = file_data;
-                done(this.views[view]);
+                this.ws_working(false);
+                done(this.views[view]);                
             });
         }
         render(){
+            this.ws_working(true);
             if (typeof this.page_controllers[this.page] ==='undefined'){
                 let controller_js = this.base_url+'app/'+this.page+'_page.js';                
                 fetch(controller_js)               
@@ -111,7 +128,8 @@ define(function(require){
                         } catch (error) {
                             this.page_controllers[this.page] = false;
                         }                        
-                    }                    
+                    }       
+                    this.ws_working(false);
                     this.render();
                 });
                 return true;
@@ -130,6 +148,7 @@ define(function(require){
                     controller.init();
                 }
             });
+            this.ws_working(false);
         }        
     }
     let app = new filter_app;
