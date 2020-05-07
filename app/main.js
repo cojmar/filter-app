@@ -3,16 +3,19 @@ define(function(require){
         constructor(){
             this.settings_key = 'filter_app';
             this.page_controllers = {};
-            this.logged_in = false;            
+            this.logged_in = this.check_login();            
             this.init_settings().init_dom().nav();
             this.working = 0;    
+        }
+        check_login(){
+            return true;
         }
         nav(){
             this.ws_working(true);
             if (!this.page) this.page = 'home';
             let url_data =window.location.href.split('#');
-            this.base_url = url_data[0];
-            this.page = url_data[1] || this.page;
+            this.base_url = window.location.origin + window.location.pathname;            
+            this.page = url_data[1] || this.page;            
             if (!this.logged_in) this.page = 'login';
             this.render();
             this.ws_working(false);
@@ -122,6 +125,7 @@ define(function(require){
                     if (file_data){
                         let script = document.createElement("script");
                         script.innerHTML = file_data;
+                        console.log(controller_js);
                         document.body.appendChild(script);   
                         try {
                             eval(`this.page_controllers[this.page] = new ${this.page}_page();`)
