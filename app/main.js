@@ -12,7 +12,7 @@ define(function(require){
         }
         nav(){
             this.ws_working(true);
-            if (!this.page) this.page = 'home';
+            if (!this.page) this.page = 'vehicles';
             let url_data =window.location.href.split('#');
             this.base_url = window.location.origin + window.location.pathname;            
             this.page = url_data[1] || this.page;            

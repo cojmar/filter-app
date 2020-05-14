@@ -3,41 +3,70 @@
 <div id="tree" class="col-sm-3 sub-menu full-height"></div>
 
 <div class="col-sm-9">
+    <div class="card" style="height: 30px;">
+        
+            <h5 class="card-title text-muted text-center">Event codes</h5>        
+    </div>   
 
-    <div class="card">
-        <div class=" text-center card-header">
-          Event codes
-        </div>
-    </div>
-
+    <p></p>
+    Steuergerät auswählen
+    <button type="button" class="btn btn-primary">B</button>
+    <button type="button" class="btn btn-secondary">C</button>
+    <button type="button" class="btn btn-secondary">DM1</button>    
+    
     <p></p>
 
     <ul class="nav nav-tabs">
         <li class="nav-item">
-          <a class="nav-link active" href="#home">Home</a>
+          <a class="nav-link active" href="#Alle">Alle</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#menu1">Menu 1</a>
+          <a class="nav-link" href="#Rot">Rot</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#menu2">Menu 2</a>
+          <a class="nav-link" href="#Gleb">Gleb</a>
         </li>
-      </ul>
+        <li class="nav-item">
+            <a class="nav-link" href="#Grau">Grau</a>
+        </li>
+    </ul>
+    <p></p>
+      
+    <table id="example" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th style="cursor: pointer;">All</th>
+                <th>Icon</th>
+                <th>Code</th>
+                <th>Description</th>                
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+                <td><i class="fas fa-bomb"></i></td>
+                <td>100</td>
+                <td>Is a bomb</td>                
+            </tr>
+            <tr>
+                <td></td>
+                <td><i class="fas fa-exclamation-triangle"></i></td>
+                <td>101</td>
+                <td>Triangle ?</td>                
+            </tr>
 
-      <div class="tab-content">
-        <div id="home" class="container tab-pane active"><br>
-          <h3>HOME</h3>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-        </div>
-        <div id="menu1" class="container tab-pane fade"><br>
-          <h3>Menu 1</h3>
-          <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-        </div>
-        <div id="menu2" class="container tab-pane fade"><br>
-          <h3>Menu 2</h3>
-          <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
-        </div>
-      </div>
+            <tr>
+                <td></td>
+                <td><i class="fas fa-head-side-mask"></i></td>
+                <td>102</td>
+                <td>Corona virus</td>                
+            </tr>            
+
+        </tbody>
+      </table>
+
+      <button type="button" class="btn btn-success float-right">Weiter</button>
+
 </div>
 
 </div>
