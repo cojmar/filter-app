@@ -54,7 +54,7 @@ class vehicles_page{
 
         $('#select2').select2({
             placeholder: 'Select an option',
-            width: '50px'
+            width: 'calc(100% - 60px)'
         });
 
         const tree_data = [{
@@ -138,17 +138,58 @@ class vehicles_page{
             paging: false,
             columnDefs: [{
                 orderable: false,
+                data: 0,
                 className: 'select-checkbox',
                 targets: 0
             }],
+            columns: [
+                { data: "sel", title: "" },
+                { data: "code", title: "Code" },
+                { data: "icon", title: "Icon" },
+                { data: "size", title: "Size" },
+                { data: "desc", title: "Description" }
+            ],
+            data: [{
+                "sel": "",
+                "code": "1234",
+                "icon": "<i class=\"fas fa-bomb\"></i>",
+                "size": 100,
+                "desc": "Is a bomb"
+            } , {
+                "sel": "",
+                "code": "4546",
+                "icon": "<i class=\"fas fa-exclamation-triangle\"></i>",
+                "size": 101,
+                "desc": "Triangle ?"
+            } , {
+                "sel": "",
+                "code": "3243",
+                "icon": "<i class=\"fas fa-head-side-mask\"></i>",
+                "size": 102,
+                "desc": "Corona virus"
+            }],
             select: {
-                style: 'os',
+                style: 'multi',
                 selector: 'td:first-child'
             },
             order: [
                 [1, 'asc']
             ]
         });
+
+        var selected = ["4546", "3243"];
+
+        example.column(1).data().each(function(value, index) {
+            if (selected.includes(value)) {
+                example.rows(index).select();
+            }
+            return true;
+        });
+
+        var codes_selected = example.rows({selected:true}).data().pluck('code').toArray();
+
+        console.log(codes_selected);
+
         
         example.on("click", "th.select-checkbox", function() {
             if ($("th.select-checkbox").hasClass("selected")) {

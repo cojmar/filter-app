@@ -4,6 +4,7 @@ class import_class{
         $this->files_path = "assets".DIRECTORY_SEPARATOR."csv".DIRECTORY_SEPARATOR;
         $this->lang = "de_DE";
         $this->fallback_lang = "en_GB";
+        $this->db = new db_class();
 
     }
     function get_files(){
@@ -93,8 +94,8 @@ class import_class{
     }
     
     function import_dm1_failure($data){
-        $code_formula = array('System','ECU','SPN','FMI');
-        $ret = array();
+        //return false;
+        $code_formula = array('System','ECU','SPN','FMI');        
         foreach($data as $row){
             $item = array(
                 'system'        =>'DM1',
@@ -104,13 +105,12 @@ class import_class{
                 'icon'          => '',
                 'description'   => $this->get_description($row)
             );
-            $ret[] = $item;
-        }
-        return $ret;
+            $this->db->array_insert_update($item,"codes");
+        }        
     }
     function import_evo_bus_bosch($data){
-        $code_formula = array('System','ECU','DTC');
-        $ret = array();
+        //return false;
+        $code_formula = array('System','ECU','DTC');        
         foreach($data as $row){
             $item = array(
                 'system'        =>'BOSCH',
@@ -119,14 +119,13 @@ class import_class{
                 'level'         => 'grey',
                 'icon'          => '',
                 'description'   => $this->get_description($row)
-            );
-            $ret[] = $item;
-        }
-        return $ret;
+            );                
+            $this->db->array_insert_update($item,"codes");
+        }        
     }
     function import_evo_bus_continental($data){
-        $code_formula = array('System','ECU','Code');
-        $ret = array();
+        //return false;
+        $code_formula = array('System','ECU','Code');        
         foreach($data as $row){
             $item = array(
                 'system'          =>'CONTINENTAL',
@@ -136,14 +135,13 @@ class import_class{
                 'icon'            => '',
                 'description'     => $this->get_description($row)
             );
-            $ret[] = $item;
-        }
-        return $ret;
+            $this->db->array_insert_update($item,"codes");
+        }        
     }
 
     function import_evo_bus_event_code($data){
-        $code_formula = array('Code');
-        $ret = array();
+        //return false;
+        $code_formula = array('Code');        
         foreach($data as $row){
             $item = array(
                 'system'        => $row['System'],
@@ -153,9 +151,14 @@ class import_class{
                 'icon'          => $row['Icon'],
                 'description'   => $this->get_description($row)
             );
-            $ret[] = $item;
+            $this->db->array_insert_update($item,"codes");
         }
-        return $ret;
+    }
+
+    function import_cars_csv($data){        
+        foreach($data as $row){            
+            $this->db->array_insert_update($row,"cars");            
+        }
     }
 
     function import(){
@@ -169,8 +172,7 @@ class import_class{
                 $method = 'import_'.$file_type;
                 $file_data =($file_type!=='cars_csv')?$this->csv_to_array($file_data):json_decode($file_data,1);
                 if (method_exists($this,$method)){                    
-                    $db_data = $this->$method($file_data);
-                    for($i=0;$i<=2;$i++) debug($db_data[$i]);
+                    $this->$method($file_data);
                 }
                 else{
                     //continue;

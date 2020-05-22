@@ -8,15 +8,88 @@
         public function client(){
             $out = file_get_contents('client.html');
             die($out);
-        }
+		}
+		
+		public function get_cars(){
+			$data = '
+			[{
+				"id": 1,
+				"text": "Region Wien",
+				"checked": false,
+				"hasChildren": true,
+				"children": [{
+					"id": 2,
+					"text": "Area Wien",
+					"checked": false,
+					"hasChildren": true,
+					"children": [{
+						"id": 3,
+						"text": "Garage Leopoldau",
+						"hasChildren": true,
+						"children": [{
+							"id": 8907,
+							"text": "W3565LO",
+							"checked": false,
+							"hasChildren": false,
+							"children": []
+						} , {
+							"id": 8909,
+							"text": "W3567LO",
+							"checked": false,
+							"hasChildren": false,
+							"children": []
+						}]
+					} , {
+						"id": 3,
+						"text": "Garage Rax",
+						"hasChildren": true,
+						"children": [{
+							"id": 8907,
+							"text": "W2883LO",
+							"checked": false,
+							"hasChildren": false,
+							"children": []
+						} , {
+							"id": 8909,
+							"text": "W2870LO",
+							"checked": false,
+							"hasChildren": false,
+							"children": []
+						}]
+					}]
+				} , {
+					"id": 2,
+					"text": "Area Sweitzer",
+					"checked": false,
+					"hasChildren": true,
+					"children": [{
+						"id": 3,
+						"text": "Garage Volksvagin",
+						"hasChildren": true,
+						"children": [{
+							"id": 8907,
+							"text": "W2883LO",
+							"checked": false,
+							"hasChildren": false,
+							"children": []
+						}]
+					}]
+				}]
+			}]';
+			die($data);
+
+		}
+		public function test(){
+			$this->db->table_columns('codes');
+		}
 		public function default_route(){
             header("HTTP/1.0 404 Not Found");
             die;
-
 		}		
 		//==Custom Init
 		private function init(){
-			
+			$this->db = new db_class();
+			$this->db->connect("localhost","root","asdasd","filter_app");
 		}
 		function __construct()
 		{
