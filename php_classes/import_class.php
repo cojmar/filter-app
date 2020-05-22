@@ -161,12 +161,13 @@ class import_class{
     function import(){
         $files = $this->get_files();
         foreach($files as $file){
-            $file_data = gzfile($file);
-            $file_type = $this->check_data_type($file_data[0]);
+            $path_info = pathinfo($file);            
+            $file_data = ($path_info['extension'] ==='gz')?gzfile($file):file_get_contents($file);
+            $file_type = ($path_info['extension'] ==='gz')?$this->check_data_type($file_data[0]):'cars_csv';
             if ($file_type){                
                 debug('Type: '.$file_type);
                 $method = 'import_'.$file_type;
-                $file_data = $this->csv_to_array($file_data);
+                $file_data =($file_type!=='cars_csv')?$this->csv_to_array($file_data):json_decode($file_data,1);
                 if (method_exists($this,$method)){                    
                     $db_data = $this->$method($file_data);
                     for($i=0;$i<=2;$i++) debug($db_data[$i]);
@@ -175,8 +176,7 @@ class import_class{
                     //continue;
                     debug('File: '.$file);
                     debug('Type: '.$file_type);
-                    debug($file_data);
-                    //for($i=0;$i<=2;$i++) debug($file_data[$i]);
+                    debug($file_data);                    
                 }
             }
         }

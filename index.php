@@ -26,7 +26,7 @@
 			// $this->url_data will be array of rest of segments if any
 			$this->route = "client";
 			$this->url_data = array();
-			if ($route_data = $this->get_route_data()){
+			if ($route_data = $this->get_route_data()){				
                 $this->route = "default_route";
 				 $route = array_shift($route_data);
 				 $this->url_data = $route_data;
@@ -44,14 +44,14 @@
 		private function get_route_data()
 		{	//==Processes url segments delimited by / returns array of segments or false
 			$path = false;
-			$real_path = substr($_SERVER['REQUEST_URI'],strlen(dirname($_SERVER['SCRIPT_NAME'])));
+			$real_path = substr(urldecode($_SERVER['REQUEST_URI']),strlen(dirname($_SERVER['SCRIPT_NAME'])));
 			$path_info = pathinfo($real_path);
 			$uri_path =(isset($path_info['dirname']) && strlen($path_info['dirname'])>1)?$path_info['dirname']:'';
 			if (!empty($uri_path) && substr($uri_path,0,1)=="/") $uri_path =substr($uri_path,1);		
-			if (!empty($uri_path)) $uri_path.="/";
+			if (!empty($uri_path)) $uri_path.="/";			
 			$uri_path .=$path_info['basename'];
 			if($path_info['basename'] == $path_info['filename'] && !empty($uri_path)) $path=explode("/",$uri_path);			
-			elseif(!empty($path_info['basename'])) $path=explode("/",$uri_path);			
+			elseif(!empty($path_info['basename'])) $path=explode("/",$uri_path);					
 			return $path;
 		}
 	}
