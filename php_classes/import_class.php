@@ -1,11 +1,10 @@
 <?php
 class import_class{
     function __construct(){
-        $this->files_path = "assets".DIRECTORY_SEPARATOR."csv".DIRECTORY_SEPARATOR;
+        $this->files_path = "assets".DIRECTORY_SEPARATOR."import".DIRECTORY_SEPARATOR;
         $this->lang = "de_DE";
         $this->fallback_lang = "en_GB";
         $this->db = new db_class();
-
     }
     function get_files(){
         $files = scandir($this->files_path);

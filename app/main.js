@@ -14,7 +14,12 @@ define(function(require){
             this.ws_working(true);
             if (!this.page) this.page = 'vehicles';
             let url_data =window.location.href.split('#');
-            this.base_url = window.location.origin + window.location.pathname;            
+            this.base_url = window.location.origin + window.location.pathname;  
+            if(this.base_url.indexOf('.') !==-1){
+                this.base_url = this.base_url.split('/');
+                this.base_url.pop();
+                this.base_url = this.base_url.join('/')+'/';                
+            }
             this.page = url_data[1] || this.page;            
             if (!this.logged_in) this.page = 'login';
             this.render();
@@ -125,7 +130,7 @@ define(function(require){
                     if (file_data){
                         let script = document.createElement("script");
                         script.innerHTML = file_data;
-                        console.log(controller_js);
+                        //console.log(controller_js);
                         document.body.appendChild(script);   
                         try {
                             eval(`this.page_controllers[this.page] = new ${this.page}_page();`)
