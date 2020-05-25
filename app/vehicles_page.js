@@ -2,7 +2,8 @@ class vehicles_page {
     constructor() {
         this.filters = {
             level:'all',
-            system:'all'
+            system:'all',
+            type:'all'
         }
         this.selected_codes = [
             "1001"
@@ -159,11 +160,19 @@ class vehicles_page {
         $('.system_filter').off('click').on('click',(e)=>{            
             this.set_filter('system',$(e.target).data('value'));
         });
+
+        $('.type_filter').off('click').on('click',(e)=>{            
+            this.set_filter('type',$(e.target).data('value'));
+        });
+
         return this;
     }
     render_filters(){
         $('.system_filter.btn-primary').removeClass('btn-primary').addClass('btn-secondary');
         $('.system_filter[data-value="'+this.filters.system+'"]').removeClass('btn-secondary').addClass('btn-primary');
+
+        $('.type_filter.btn-primary').removeClass('btn-primary').addClass('btn-secondary');
+        $('.type_filter[data-value="'+this.filters.type+'"]').removeClass('btn-secondary').addClass('btn-primary');
 
         $('.nav-tabs a[href="#'+this.filters.level+'"]').tab('show');
         return this;
