@@ -1,23 +1,23 @@
-class vehicles_page{
-    constructor(){
-        
-    }    
-
-    escape_html(text) {
-        var map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-
-        return text.replace(/[&<>"']/g, function(m) {
-            return map[m];
-        });
+class vehicles_page {
+    constructor() {
+        this.filters = {
+            level:'all',
+            system:'all'
+        }
+        this.data_table = false;
+        this.extend_data_table();
     }
-    
-    init(){
+    set_level(level=false){
+        if (level) this.filters.level = level;
+        $('.nav-tabs a[href="#'+this.filters.level+'"]').tab('show');
+        this.filter_table();
+    }
+    filter_table(){
+        if (!this.data_table) return this;            
+        this.data_table.draw();            
+        return this;
+    }
+    extend_data_table(){
         $.extend(true, $.fn.dataTable.defaults, {
             language: {
                 decimal: ',',
@@ -69,10 +69,10 @@ class vehicles_page{
         $.fn.dataTable.render.ellipsis = function (cutoff, wordbreak, escapeHtml) {
             var esc = function (t) {
                 return t
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
             };
 
             // noinspection JSUnusedLocalSymbols
@@ -108,36 +108,65 @@ class vehicles_page{
             };
         };
 
+        $.fn.dataTable.ext.search.push(
+            ( settings, data, dataIndex )=> {
+                if (!this.data_table) return true;  
+                if (Object.values(this.filters).every((val, i, arr) => val === arr[0])) return true;
+                 
+
+                let row_data = this.data_table.rows( dataIndex ).data().toArray()[0];
+                
+                for(let filter in this.filters){
+                    if (this.filters[filter] !=='all' && row_data[filter] !==this.filters[filter]){
+                        return false;
+                    }
+                }
+                return true;                        
+            }
+        );
+        return this;
+    }
+    init_select2(){
         $('#select2').select2({
             placeholder: 'Select an option',
             width: 'calc(100% - 60px)'
         });
-
-       
-        const tree = $('#tree').tree({
+        return this;
+    }
+    render_tree(){
+        this.tree = $('#tree').tree({
             primaryKey: 'id',
             uiLibrary: 'bootstrap4',
             dataSource: 'assets/build/cars.json',
             checkboxes: true
         });
-
-        $(".nav-tabs a").click(function(e){
-            e.preventDefault();
-            $(this).tab('show');
+        return this;
+    }
+    init_tabs(){
+        $(".nav-tabs a").click((e)=>{
+            e.preventDefault();            
+            this.set_level(e.target.hash.substr(1));
         });
-
-        let example = $('#example').DataTable({
+        return this;
+    }
+    render_table(){
+        this.data_table = $('#data_table').DataTable({
             //paging: false,
             columnDefs: [{
                 orderable: false,
                 data: 0,
                 className: 'select-checkbox',
                 targets: 0
-            }, {
+            },
+            {
+                targets: 2,
+                width: "10px"
+            },
+            {
                 targets: 1,
                 data: 1,
                 orderable: false,
-                render:  (data, type, row, meta) =>{
+                render: (data, type, row, meta) => {
                     let img = '';
 
                     if (data === null || data === false || $.trim(data) === '') {
@@ -148,34 +177,31 @@ class vehicles_page{
 
                     return '<a href="javascript:" title="' + data + '"><img class="img-thumbnail" style="width:50px;background-color: ' + row['level'] + ';" alt="" loading="lazy" ondragstart="return false;" src="assets/code_img/' + img + '" /></a>';
                 }
-            } , {
-                targets: 5,
-                //data: 4,
-                render: function (data, type, row, meta) {
-                    return $.fn.dataTable.render.ellipsis(40, true)(data, type, row);
+            }, {
+                targets: 6,                
+                render: (data, type, row, meta) =>{
+                    return $.fn.dataTable.render.ellipsis(50, true)(data, type, row);
                 }
-            }],            
+            },{
+                targets:5,
+                orderable: false,
+                render:(data, type, row, meta)=>{
+                    return `
+                        <input type="text" value="" disabled>
+                    `;
+                }
+            }],
             columns: [
                 { data: "sel", title: "" },
                 { data: "icon", title: "Icon" },
                 { data: "code", title: "Code" },
-                { data: "type", title: "Type" },                
+                { data: "type", title: "Type" },
                 { data: "system", title: "System" },
+                { data: "sel", title: "Nach" },
                 { data: "desc", title: "Description" }
             ],
-            
-            ajax: 'assets/build/codes.json',
-            /*
-            
-            data: [{
-                "sel": "",
-                "icon": "<i class=\"fas fa-bomb\"></i>",
-                "code": "1234",               
-                "type": 100,
-                "system": 100,
-                "desc": "Is a bomb"
-            } ],
-            */            
+
+            ajax: 'assets/build/codes.json',            
             select: {
                 style: 'multi',
                 selector: 'td:first-child'
@@ -187,36 +213,41 @@ class vehicles_page{
 
         var selected = ["4546", "3243"];
 
-        example.column(1).data().each(function(value, index) {
+        this.data_table.column(1).data().each((value, index)=>{
             if (selected.includes(value)) {
-                example.rows(index).select();
+                this.data_table.rows(index).select();
             }
             return true;
         });
 
-        var codes_selected = example.rows({selected:true}).data().pluck('code').toArray();
+        var codes_selected = this.data_table.rows({ selected: true }).data().pluck('code').toArray();
 
         console.log(codes_selected);
 
-        
-        example.on("click", "th.select-checkbox", function() {
+
+        this.data_table.on("click", "th.select-checkbox",  ()=> {
             if ($("th.select-checkbox").hasClass("selected")) {
-                example.rows().deselect();
+                this.data_table.rows().deselect();
                 $("th.select-checkbox").removeClass("selected");
             } else {
-                example.rows().select();
+                this.data_table.rows().select();
                 $("th.select-checkbox").addClass("selected");
             }
-        }).on("select deselect", function() {
+        }).on("select deselect", ()=> {
             ("Some selection or deselection going on")
-            if (example.rows({
-                    selected: true
-                }).count() !== example.rows().count()) {
+            if (this.data_table.rows({
+                selected: true
+            }).count() !== this.data_table.rows().count()) {
                 $("th.select-checkbox").removeClass("selected");
             } else {
                 $("th.select-checkbox").addClass("selected");
             }
         });
+        return this;
+    }
+
+    init(){
+      this.init_tabs().init_select2().render_tree().render_table();
 
     }
 }

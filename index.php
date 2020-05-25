@@ -4,7 +4,12 @@
 		public function import(){
             $importer = new import_class();
             $importer->import();
-        }
+		}
+		public function install(){
+			$importer = new import_class();
+			$importer->install_db();
+			
+		}
         public function client(){
             $out = file_get_contents('client.html');
             die($out);
@@ -24,10 +29,11 @@
 		//==Custom Init
 		private function init(){
 			$this->db = new db_class();
-			$this->db->connect("localhost","root","asdasd","filter_app");
+			$this->db->connect("localhost","root","thoreb-7","filter_app");
 		}
 		function __construct()
 		{
+			set_time_limit(0);
 			// Get url segments try to find a non private function with same name as 1st segment and run it
 			// If not try to lunch default_route()
 			// $this->route will be the 1st segment, 
