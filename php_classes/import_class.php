@@ -161,6 +161,7 @@ class import_class{
     }
 
     function import(){
+        $this->install_db();
         $files = $this->get_files();
         foreach($files as $file){
             $path_info = pathinfo($file);            
@@ -181,17 +182,38 @@ class import_class{
                 }
             }
         }
+        $builder = new build_class();
+		$builder->build();
+    }
+
+    function install_db(){
+        $sqls = array();
+        $sqls[] = "
+            CREATE TABLE IF NOT EXISTS `cars` (
+                `id` bigint(21) NOT NULL,
+                `manufacturer` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+                `manufacturerSerial` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+                `registration` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+                `regionalManagement` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+                `areaManagement` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+                `localAreaManagement` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+                PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+        ";
+
+        $sqls[] = "
+            CREATE TABLE IF NOT EXISTS `codes` (
+                `code` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+                `type` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+                `system` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+                `level` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+                `icon` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+                `description` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+                PRIMARY KEY (`code`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;          
+        ";
+        foreach ($sqls as $sql){
+            $this->db->query($sql);
+        }
     }
 }
-/*
-
-manufacturer: dm1, boch, continental
-event_type: failure, event
-event_code:
-dm_failure - System-ECU-SPN-FMI
-evo_bus_bosch - System-ECU-DTC
-evo_bus_continental - System-ECU-Code
-evo_bus_event_code
-event_description
-
-*/

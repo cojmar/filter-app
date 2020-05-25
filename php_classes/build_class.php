@@ -60,7 +60,7 @@ class build_class{
         }   
         //debug($car);
         //debug($out);
-        $this->linear_children($out);
+        $this->linear_children($out);       
         $out = json_encode($out);
         file_put_contents($this->files_path."cars.json",$out);
     }
@@ -79,11 +79,13 @@ class build_class{
                 'code'      => $code['code'],                
                 'type'      => $code['type'],
                 'system'    => $code['system'],
-                'desc'      => $code['description']                
+                'desc'      => $code['description'],
+                'level'     => $code['level']
             );
             $out[] = $item;
         }
         //debug($out);
+        $out = array("data"=>$out);
         $out = json_encode($out);
         file_put_contents($this->files_path."codes.json",$out);
     }
