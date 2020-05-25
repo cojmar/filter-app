@@ -9,9 +9,27 @@ class vehicles_page {
         this.selected_codes = [
             "1001"
         ];
+        this.init_done = false;
+        this.codes =false;
         this.data_table = false;
         this.extend_data_table();
+        this.get_codes();
     }
+    get_codes(){        
+        window.app.ws_working(true);
+        fetch('assets/build/codes.json')
+        .then(response => response.json())
+        .then(response_data =>{
+            this.codes = response_data.data;
+            window.app.ws_working(false);
+        });
+        return this;
+    }    
+
+    show_modal(){
+        $('#email_modal').modal('show');
+    }
+
     set_filter(filter,value){
         this.filters[filter] = value;        
         this.render_filters().filter_table();
@@ -179,8 +197,12 @@ class vehicles_page {
         $('.nav-tabs a[href="#'+this.filters.level+'"]').tab('show');
         return this;
     }
-
+    
     render_table(){
+        $('#table_container').html(`
+            <table id="data_table" class="display" style="width: 100%;"></table>            
+        `);
+
         this.data_table = $('#data_table').DataTable({
             //paging: false,
             columnDefs: [{
@@ -232,7 +254,8 @@ class vehicles_page {
                 { data: "desc", title: "Description" }
             ],
 
-            ajax: 'assets/build/codes.json',            
+            /*ajax: 'assets/build/codes.json',*/            
+            data:this.codes,
             select: {
                 style: 'multi',
                 selector: 'td:first-child'
@@ -259,16 +282,26 @@ class vehicles_page {
                 $("th.select-checkbox").addClass("selected");
             }
         });
+        //this.add_data_to_table(this.codes);
         return this;
     }
 
-    init(){
+    init(){        
         this.render_filters();
+        if (!this.codes){
+            if (this.reinit) clearTimeout(this.reinit);
+            this.reinit = setTimeout(() => {
+                this.init();   
+            });
+            return false;
+        }
+        console.log('init');
         window.app.ws_working(true);
         this.loaders++;
         setTimeout(() => {
-            this.init_filters().init_select2().render_tree().render_table();    
+            this.init_filters().init_select2().render_tree().render_table(); 
         });
+        this.init_done = true;
     }
 
     done_render(){
