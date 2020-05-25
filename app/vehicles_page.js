@@ -4,17 +4,22 @@ class vehicles_page {
             level:'all',
             system:'all'
         }
+        this.selected_codes = [
+            "1001"
+        ];
         this.data_table = false;
         this.extend_data_table();
     }
-    set_level(level=false){
-        if (level) this.filters.level = level;
-        $('.nav-tabs a[href="#'+this.filters.level+'"]').tab('show');
-        this.filter_table();
+    set_filter(filter,value){
+        this.filters[filter] = value;
+        this.render_filters().filter_table();
     }
     filter_table(){
-        if (!this.data_table) return this;            
-        this.data_table.draw();            
+        if (!this.data_table) return this;
+        window.app.ws_working(true);
+        setTimeout(() => {
+            this.data_table.draw();    
+        });
         return this;
     }
     extend_data_table(){
@@ -110,6 +115,10 @@ class vehicles_page {
 
         $.fn.dataTable.ext.search.push(
             ( settings, data, dataIndex )=> {
+                if (window.data_table_render_time_out) clearTimeout(window.data_table_render_time_out);
+                window.data_table_render_time_out = setTimeout(() => {                    
+                    this.done_render();
+                }, 100);
                 if (!this.data_table) return true;  
                 if (Object.values(this.filters).every((val, i, arr) => val === arr[0])) return true;
                  
@@ -142,13 +151,24 @@ class vehicles_page {
         });
         return this;
     }
-    init_tabs(){
-        $(".nav-tabs a").click((e)=>{
+    init_filters(){
+        $(".nav-tabs a").off('click').on('click',(e)=>{
             e.preventDefault();            
-            this.set_level(e.target.hash.substr(1));
+            this.set_filter('level',e.target.hash.substr(1));
+        });
+        $('.system_filter').off('click').on('click',(e)=>{            
+            this.set_filter('system',$(e.target).data('value'));
         });
         return this;
     }
+    render_filters(){
+        $('.system_filter.btn-primary').removeClass('btn-primary').addClass('btn-secondary');
+        $('.system_filter[data-value="'+this.filters.system+'"]').removeClass('btn-secondary').addClass('btn-primary');
+
+        $('.nav-tabs a[href="#'+this.filters.level+'"]').tab('show');
+        return this;
+    }
+
     render_table(){
         this.data_table = $('#data_table').DataTable({
             //paging: false,
@@ -210,21 +230,6 @@ class vehicles_page {
                 [2, 'asc']
             ]
         });
-
-        var selected = ["4546", "3243"];
-
-        this.data_table.column(1).data().each((value, index)=>{
-            if (selected.includes(value)) {
-                this.data_table.rows(index).select();
-            }
-            return true;
-        });
-
-        var codes_selected = this.data_table.rows({ selected: true }).data().pluck('code').toArray();
-
-        console.log(codes_selected);
-
-
         this.data_table.on("click", "th.select-checkbox",  ()=> {
             if ($("th.select-checkbox").hasClass("selected")) {
                 this.data_table.rows().deselect();
@@ -247,7 +252,28 @@ class vehicles_page {
     }
 
     init(){
-      this.init_tabs().init_select2().render_tree().render_table();
+        this.render_filters();
+        window.app.ws_working(true);
+        setTimeout(() => {
+            this.init_filters().init_select2().render_tree().render_table();    
+        });
+    }
 
+    done_render(){
+        window.app.ws_working(false);
+        return this;
+        this.data_table.column(2).data().each((value, index)=>{
+            if (this.selected_codes.includes(value)) {
+                this.data_table.rows(index).select();                
+            }
+            else{
+                //this.data_table.rows(index).deselect();
+            }
+            //console.log(value);
+            return true;
+        });
+        var codes_selected = this.data_table.rows({ selected: true }).data().pluck('code').toArray();
+        
+        
     }
 }
