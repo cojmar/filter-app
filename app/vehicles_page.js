@@ -1,5 +1,6 @@
 class vehicles_page {
     constructor() {
+        this.loaders = 0;
         this.filters = {
             level:'all',
             system:'all',
@@ -12,15 +13,16 @@ class vehicles_page {
         this.extend_data_table();
     }
     set_filter(filter,value){
-        this.filters[filter] = value;
+        this.filters[filter] = value;        
         this.render_filters().filter_table();
     }
     filter_table(){
         if (!this.data_table) return this;
         window.app.ws_working(true);
+        this.loaders++;
         setTimeout(() => {
             this.data_table.draw();    
-        });
+        },100);
         return this;
     }
     extend_data_table(){
@@ -263,13 +265,17 @@ class vehicles_page {
     init(){
         this.render_filters();
         window.app.ws_working(true);
+        this.loaders++;
         setTimeout(() => {
             this.init_filters().init_select2().render_tree().render_table();    
         });
     }
 
     done_render(){
-        window.app.ws_working(false);
+        for (let i=0;i<=this.loaders;i++){
+            window.app.ws_working(false);
+        }
+        this.loaders--;
         return this;
         this.data_table.column(2).data().each((value, index)=>{
             if (this.selected_codes.includes(value)) {
