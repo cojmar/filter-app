@@ -1,6 +1,5 @@
 class vehicles_page {
-    constructor() {
-        this.loaders = 0;
+    constructor() {        
         this.filters = {
             level:'all',
             system:'all',
@@ -37,12 +36,12 @@ class vehicles_page {
         this.render_filters().filter_table();
     }
     filter_table(){
-        if (!this.data_table) return this;
-        window.app.ws_working(true);
-        this.loaders++;
+        if (!this.data_table) return this;              
+        window.app.ws_working(true);    
         setTimeout(() => {
-            this.data_table.draw();    
-        },100);
+            this.data_table.draw();            
+        });
+        
         return this;
     }
     extend_data_table(){
@@ -267,7 +266,18 @@ class vehicles_page {
                 [2, 'asc']
             ],
             drawCallback:()=>{
-                this.done_render();
+                
+                setTimeout(() => {
+                    window.app.ws_working(false);    
+                },100);                
+                
+            },
+            preDrawCallback:()=>{
+                /*
+                setTimeout(() => {
+                    window.app.ws_working(true);    
+                });                
+                */
             }
         });
         this.data_table.on("click", "th.select-checkbox",  ()=> {
@@ -295,36 +305,10 @@ class vehicles_page {
                 this.init();   
             });
             return false;
-        }
-        console.log('init');
-        window.app.ws_working(true);
-        this.loaders++;
-        setTimeout(() => {
-            this.init_filters().init_select2().render_tree().render_table(); 
-        });
+        }                
+        this.init_filters().init_select2().render_tree().render_table();
         this.init_done = true;
-    }
-
-    done_render(){
-        for (let i=0;i<=this.loaders;i++){
-            window.app.ws_working(false);
-        }
-        this.loaders--;
-        return this;
-        this.data_table.column(2).data().each((value, index)=>{
-            if (this.selected_codes.includes(value)) {
-                this.data_table.rows(index).select();                
-            }
-            else{
-                //this.data_table.rows(index).deselect();
-            }
-            //console.log(value);
-            return true;
-        });
-        var codes_selected = this.data_table.rows({ selected: true }).data().pluck('code').toArray();
-        
-        
-    }
+    }   
 
     export_table(){        
         let codes_selected = this.data_table.rows({ selected: true }).data().pluck('code').toArray();
