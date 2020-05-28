@@ -1,5 +1,6 @@
 class vehicles_page {
     constructor() {        
+        this.table_data = {};
         this.filters = {
             level:'all',
             system:'all',
@@ -40,7 +41,7 @@ class vehicles_page {
         window.app.ws_working(true);    
         setTimeout(() => {
             this.data_table.draw();            
-        });
+        },100);
         
         return this;
     }
@@ -160,7 +161,7 @@ class vehicles_page {
         });
         return this;
     }
-    render_tree(){
+    init_tree(){
         this.tree = $('#tree').tree({
             primaryKey: 'id',
             uiLibrary: 'bootstrap4',
@@ -182,8 +183,12 @@ class vehicles_page {
             this.set_filter('type',$(e.target).data('value'));
         });
 
-        $('#test_button').off('click').on('click',(e)=>{
-            this.import_table();
+        $('#button_restore').off('click').on('click',(e)=>{
+            this.import_table(this.table_data);
+        });
+
+        $('#button_save').off('click').on('click',(e)=>{
+            this.table_data = this.export_table();
         });
 
         return this;
@@ -199,7 +204,7 @@ class vehicles_page {
         return this;
     }
     
-    render_table(){
+    init_table(){
         $('#table_container').html(`
             <table id="data_table" class="display" style="width: 100%;"></table>            
         `);
@@ -265,24 +270,24 @@ class vehicles_page {
             order: [
                 [2, 'asc']
             ],
-            drawCallback:()=>{
-                
+            drawCallback:()=>{                
                 setTimeout(() => {
                     window.app.ws_working(false);    
+                    window.app.ws_working(false);
                 },100);                
                 
             },
             preDrawCallback:()=>{
-                /*
+                
                 setTimeout(() => {
                     window.app.ws_working(true);    
                 });                
-                */
+                
             }
         });
         this.data_table.on("click", "th.select-checkbox",  ()=> {
             if ($("th.select-checkbox").hasClass("selected")) {
-                this.data_table.rows().deselect();
+                this.clear_table();
                 $("th.select-checkbox").removeClass("selected");
             } else {
                 this.data_table.rows().select();
@@ -291,9 +296,8 @@ class vehicles_page {
         }).on("select", (e, dt, type, indexes)=> {
             this.data_table.rows(indexes).nodes().to$().find('input[type="text"]').first().removeAttr('disabled');
         }).on("deselect", (e, dt, type, indexes)=> {
-            this.data_table.rows(indexes).nodes().to$().find('input[type="text"]').first().val('').attr('disabled', '');
-        });
-        //this.add_data_to_table(this.codes);
+            this.data_table.rows(indexes).nodes().to$().find('input[type="text"]').first().val().attr('disabled', '');
+        });        
         return this;
     }
 
@@ -305,31 +309,35 @@ class vehicles_page {
                 this.init();   
             });
             return false;
-        }                
-        this.init_filters().init_select2().render_tree().render_table();
+        }  
+        window.app.ws_working(true);              
+        window.app.ws_working(true);              
+        this.init_filters().init_select2().init_tree().init_table();
+        this.import_table(this.table_data);
         this.init_done = true;
+        window.app.ws_working(false);
     }   
 
     export_table(){        
-        let codes_selected = this.data_table.rows({ selected: true }).data().pluck('code').toArray();
         let data = {};
+        let codes_selected = this.data_table.rows({ selected: true }).data().pluck('code').toArray();        
         this.data_table.rows({ selected: true }).nodes().to$().find('input[type="text"]').each(function(i, el) {
             data[codes_selected[i]] = $(el).val();   
         });
-        console.log(data);
+        return data;        
     }
 
-    clear_table(){
+    clear_table(clear_values = false){
         let clear_rows = this.data_table.rows({ selected: true });
-        clear_rows.nodes().to$().find('input[type="text"]').val('').attr('disabled', '');
+        let els = clear_rows.nodes().to$().find('input[type="text"]')
+        if (clear_values) els.val('');
+        els.attr('disabled', '');
         clear_rows.deselect();
     }
 
-    import_table(){
-        this.clear_table();
-        let data = {"1001":"1","1002":"2"};
-        console.log(data);
-
+    import_table(data){
+        if (typeof data !=='object') return false;
+        this.clear_table(true);
         this.data_table.column(2).data().each((value, index)=>{
             if (Object.keys(data).includes(value)) {
                 let row = this.data_table.row(index);

@@ -65,30 +65,7 @@ define(function(require){
             if (show) $('#loader').show();
             else $('#loader').hide();
         }
-        ws_call(data){            
-            let call_url =  `${this.call_url}ws`;
-            this.ws_working(true);
-            fetch(call_url, {
-                method: 'POST', // or 'PUT'
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Accept': 'application/json',                                    
-                },
-                body: JSON.stringify(data),
-            })
-            .then((response) => {
-                this.ws_working(false);
-                return response.json();
-            })
-            .then((response_data) => {
-                this.render(response_data.data);
-                //console.log('Success:', data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-            return this;
-        }        
+        
         get_view(view,done){
             this.ws_working(true);
             if (view){
