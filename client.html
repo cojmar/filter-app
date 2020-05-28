@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/select/1.2.1/css/select.dataTables.min.css" />
     <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" /> -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" />  
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/gijgo@1.9.13/css/gijgo.min.css" />
 
     <script src="https://kit.fontawesome.com/f68d23602c.js"></script>
@@ -21,16 +21,18 @@
     <script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
     <!-- <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script> -->
-    <script src="https://cdn.datatables.net/select/1.2.1/js/dataTables.select.min.js"></script>    
+    <script src="https://cdn.datatables.net/select/1.2.1/js/dataTables.select.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
 
     <style>
-        html, body {
+        html,
+        body {
             height: 100%;
             margin: 0;
             padding: 0;
         }
-        a{
+
+        a {
             cursor: pointer;
         }
 
@@ -85,14 +87,14 @@
                 position: relative;
                 width: 100%;
                 min-height: 1px;
-                height: auto;                
+                height: auto;
             }
 
             #container {
                 width: 100%;
             }
 
-            #container .row > div {
+            #container .row>div {
                 flex: 0 0 100%;
                 max-width: 100%;
             }
@@ -186,15 +188,15 @@
             border: 1px solid black;
             border-radius: 5px;
             padding: 5px;
-        }       
+        }
 
-        #loader{
-            display:none;
+        #loader {
+            display: none;
             z-index: 100;
-            position:fixed;
-            right:5px;
-            top:5px;
-        }      
+            position: fixed;
+            right: 5px;
+            top: 5px;
+        }
 
         ul.nav li a i.fas {
             position: relative;
@@ -205,9 +207,9 @@
         .container-height {
             height: calc(100% - 55px);
         }
-       
+
         .sub-menu {
-            border-right: 1px solid #e5e5e5;            
+            border-right: 1px solid #e5e5e5;
         }
 
         .nav-pills .nav-link {
@@ -217,15 +219,14 @@
         }
 
         .nav-pills .nav-link:focus,
-        .nav-pills .show > .nav-link {
+        .nav-pills .show>.nav-link {
             background-color: #000;
             color: #fff;
         }
 
         table.dataTable tr th.select-checkbox.selected::after,
         table.dataTable tr.selected td.select-checkbox:after,
-        table.dataTable tr.selected th.select-checkbox:after
-        {
+        table.dataTable tr.selected th.select-checkbox:after {
             font-family: 'FontAwesome';
             content: "\f00c";
             margin-top: 5px;
@@ -248,35 +249,83 @@
         .dataTables_wrapper {
             overflow-x: auto;
         }
-    </style>    
+
+        .lds-ring {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .lds-ring div {
+            box-sizing: border-box;
+            display: block;
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            margin: 0px;
+            border: 8px solid #315A9D;
+            border-radius: 50%;
+            animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            border-color: #315A9D transparent transparent transparent;
+        }
+
+        .lds-ring div:nth-child(1) {
+            animation-delay: -0.45s;
+        }
+
+        .lds-ring div:nth-child(2) {
+            animation-delay: -0.3s;
+        }
+
+        .lds-ring div:nth-child(3) {
+            animation-delay: -0.15s;
+        }
+
+        @keyframes lds-ring {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
-<body>    
+
+<body>
     <div id="loader">
-        <image src="assets/img/loading.gif" style="width:40px;">
+        <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
     </div>
     <nav class="navbar navbar-inverse">
         <div class="container-fluid">
             <div class="navbar-header">
                 <a class="navbar-brand" href="#home" id="logo-link">
                     <image src="assets/img/logo.png">
-                </a>                
+                </a>
             </div>
         </div>
     </nav>
     <div class="container-height container-fluid">
         <div class="row content">
             <ul class="nav nav-pills nav-stacked flex-column" id="sidebar">
-                <li class="nav-item"><a class="nav-link" href="#vehicles">Fahrzeuge<i class="fas fa-cloud float-right"></i></a></li>
-                <li class="nav-item"><a class="nav-link" href="#user">Benutzer<i class="fas fa-film float-right"></i></a></li>
-                <li class="nav-item"><a class="nav-link" href="#settings">Einstellungen<i class="fas fa-cog float-right"></i></a></li>
-                <li class="nav-item"><a class="nav-link" href="#logout">Logout<i class="fas fa-sign-out-alt float-right"></i></a></li>
+                <li class="nav-item"><a class="nav-link" href="#vehicles">Fahrzeuge<i
+                            class="fas fa-cloud float-right"></i></a></li>
+                <li class="nav-item"><a class="nav-link" href="#user">Benutzer<i
+                            class="fas fa-film float-right"></i></a></li>
+                <li class="nav-item"><a class="nav-link" href="#settings">Einstellungen<i
+                            class="fas fa-cog float-right"></i></a></li>
+                <li class="nav-item"><a class="nav-link" href="#logout">Logout<i
+                            class="fas fa-sign-out-alt float-right"></i></a></li>
             </ul>
 
             <div id="container">
-                
+
             </div>
         </div>
     </div>
 </body>
 <script data-main="app" src="require.js"></script>
+
 </html>
