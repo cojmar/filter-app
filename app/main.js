@@ -133,8 +133,9 @@ define(function(require){
                 if (typeof controller === 'object' && typeof controller.init ==='function'){
                     controller.init();
                 }
+                this.ws_working(false);
             });
-            this.ws_working(false);
+            
         }        
     }
     let app = new filter_app;

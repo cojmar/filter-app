@@ -3,16 +3,19 @@
     <div class="col-sm-3 sub-menu">
         <div class="form-group">
             <select id="select2">
-              
+              <option value="" disabled selected></option>
+              <option value="test@test.com">test@test.com</option>
+              <option value="test2@test.com">test2@test.com</option>
+
             </select>
             <button type="button" class="btn btn-success float-right btn-sm">Weiter</button>   
         </div>
         <br>
 
-        <div id="tree"></div>
+        <div id="tree only_when_email_selected"></div>
     </div>
 
-    <div class="col-sm-9">
+    <div class="col-sm-9 only_when_email_selected">
         <div class="card" style="height: 30px;">
             <h5 class="card-title text-muted text-center">Event codes</h5>        
         </div>   
