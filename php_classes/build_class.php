@@ -52,7 +52,7 @@ class build_class{
             }
             $out[$car['regionalManagement']]['children'][$car['areaManagement']]['children'][$car['localAreaManagement']]['children'][$car['id']] = array(
                 "id"=> $car['id'],
-                "text"=> $car['registration'],
+                "text"=> $car['id'],//$car['registration'],
                 "checked"=> false,
                 "hasChildren"=> false,
                 "children"=>array()
@@ -69,6 +69,8 @@ class build_class{
         $sql = "
             SELECT *
             FROM  `codes`
+            WHERE 
+                `system` <> 'DM1'
         ";
         $codes = $this->db->query($sql)->fetchAll();
         $out = array();

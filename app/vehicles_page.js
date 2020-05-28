@@ -29,7 +29,9 @@ class vehicles_page {
     show_modal(){
         $('#email_modal').modal('show');
     }
-
+    get_default_code_value(code){
+        return 2;
+    }
     set_filter(filter,value){
         this.filters[filter] = value;        
         this.render_filters().filter_table();
@@ -135,11 +137,7 @@ class vehicles_page {
         };
 
         $.fn.dataTable.ext.search.push(
-            ( settings, data, dataIndex )=> {
-                if (window.data_table_render_time_out) clearTimeout(window.data_table_render_time_out);
-                window.data_table_render_time_out = setTimeout(() => {                    
-                    this.done_render();
-                }, 100);
+            ( settings, data, dataIndex )=> {                
                 if (!this.data_table) return true;  
                 if (Object.values(this.filters).every((val, i, arr) => val === arr[0])) return true;
                  
@@ -185,6 +183,10 @@ class vehicles_page {
             this.set_filter('type',$(e.target).data('value'));
         });
 
+        $('#test_button').off('click').on('click',(e)=>{
+            this.import_table();
+        });
+
         return this;
     }
     render_filters(){
@@ -208,6 +210,7 @@ class vehicles_page {
             columnDefs: [{
                 orderable: false,
                 data: 0,
+                defaultContent: '',
                 className: 'select-checkbox',
                 targets: 0
             },
@@ -238,9 +241,9 @@ class vehicles_page {
             },{
                 targets:5,
                 orderable: false,
-                render:(data, type, row, meta)=>{
+                render:(data, type, row, meta)=>{                    
                     return `
-                        <input type="text" value="" disabled>
+                        <input type="text" value="" style="width:50px;" disabled>
                     `;
                 }
             }],
@@ -262,7 +265,10 @@ class vehicles_page {
             },
             order: [
                 [2, 'asc']
-            ]
+            ],
+            drawCallback:()=>{
+                this.done_render();
+            }
         });
         this.data_table.on("click", "th.select-checkbox",  ()=> {
             if ($("th.select-checkbox").hasClass("selected")) {
@@ -272,15 +278,10 @@ class vehicles_page {
                 this.data_table.rows().select();
                 $("th.select-checkbox").addClass("selected");
             }
-        }).on("select deselect", ()=> {
-            ("Some selection or deselection going on")
-            if (this.data_table.rows({
-                selected: true
-            }).count() !== this.data_table.rows().count()) {
-                $("th.select-checkbox").removeClass("selected");
-            } else {
-                $("th.select-checkbox").addClass("selected");
-            }
+        }).on("select", (e, dt, type, indexes)=> {
+            this.data_table.rows(indexes).nodes().to$().find('input[type="text"]').first().removeAttr('disabled');
+        }).on("deselect", (e, dt, type, indexes)=> {
+            this.data_table.rows(indexes).nodes().to$().find('input[type="text"]').first().val('').attr('disabled', '');
         });
         //this.add_data_to_table(this.codes);
         return this;
@@ -324,4 +325,34 @@ class vehicles_page {
         
         
     }
+
+    export_table(){        
+        let codes_selected = this.data_table.rows({ selected: true }).data().pluck('code').toArray();
+        let data = {};
+        this.data_table.rows({ selected: true }).nodes().to$().find('input[type="text"]').each(function(i, el) {
+            data[codes_selected[i]] = $(el).val();   
+        });
+        console.log(data);
+    }
+
+    clear_table(){
+        let clear_rows = this.data_table.rows({ selected: true });
+        clear_rows.nodes().to$().find('input[type="text"]').val('').attr('disabled', '');
+        clear_rows.deselect();
+    }
+
+    import_table(){
+        this.clear_table();
+        let data = {"1001":"1","1002":"2"};
+        console.log(data);
+
+        this.data_table.column(2).data().each((value, index)=>{
+            if (Object.keys(data).includes(value)) {
+                let row = this.data_table.row(index);
+                row.select();
+                $(row.node()).find('input[type="text"]').first().val(data[value]);
+            }
+        });
+    }
+
 }

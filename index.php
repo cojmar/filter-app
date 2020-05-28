@@ -29,7 +29,8 @@
 		//==Custom Init
 		private function init(){
 			$this->db = new db_class();
-			$this->db->connect("localhost","root","thoreb-7","filter_app");
+			//$this->db->connect("localhost","root","thoreb-7","filter_app");
+			$this->db->connect("localhost","root","asdasd","filter_app");
 		}
 		function __construct()
 		{
