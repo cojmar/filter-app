@@ -1,17 +1,60 @@
 class vehicles_page {
     constructor(){
+        this.data_loaded={
+            emails:false,
+            codes:false,    
+            cars:false,        
+        }
         this.filters = {
             level:'all',
             system:'all',
             type:'all'
-        }        
-        this.init_done = false;
+        }                
         this.codes =false;
         this.data_table = false;
-        this.extend_data_table();
-        this.get_codes();
+        this.cars = false;
         this.email = '';
         this.emails = {};
+        this.extend_data_table().get_cars().get_codes().get_emails();
+        
+    }
+  
+    get_cars(){
+       window.app.ws_working(true);
+        fetch('assets/build/cars.json')
+        .then(response => response.json())
+        .then(response_data =>{
+            this.cars = response_data.data;
+            this.data_loaded['cars'] = true;
+            window.app.ws_working(false);
+        });
+        return this;
+    }
+    get_emails(){
+        setTimeout(() => {
+            this.data_loaded['emails'] = true;    
+        }, 5000);
+        
+        return this;
+    }
+    get_codes(){        
+        window.app.ws_working(true);
+        fetch('assets/build/codes.json')
+        .then(response => response.json())
+        .then(response_data =>{
+            this.codes = response_data.data;
+            this.data_loaded['codes'] = true;
+            window.app.ws_working(false);
+        });
+        return this;
+    }
+    check_data_loaded(){
+        for (let data_type in this.data_loaded){
+            if (!this.data_loaded[data_type]){                
+                return false;
+            }
+        }
+        return true;
     }
     load_email(){
         if (this.email ===''){
@@ -37,36 +80,6 @@ class vehicles_page {
     save_email(){
         this.emails[this.email].codes = this.export_table();
         return this;
-    }
-    get_codes(){        
-        window.app.ws_working(true);
-        fetch('assets/build/codes.json')
-        .then(response => response.json())
-        .then(response_data =>{
-            this.codes = response_data.data;
-            window.app.ws_working(false);
-        });
-        return this;
-    }    
-
-    show_modal(){
-        $('#email_modal').modal('show');
-    }
-    get_selection_default_code_value(){        
-        this.data_table.rows({
-            selected: true
-        }).data().each((value, index)=>{
-            let row = this.data_table.row(index);        
-            let el = $(row.node()).find('input[type="text"]').first();
-            if (el.val() ===''){
-                let def_val = this.get_default_code_value(row.data()['code']);
-                el.val(def_val);
-            }
-        });
-    }
-    get_default_code_value(code){
-        //console.log(code);
-        return 2;
     }
     set_filter(filter,value){
         this.filters[filter] = value;        
@@ -351,11 +364,11 @@ class vehicles_page {
                 this.data_table.rows().select();
                 this.data_table.rows().nodes().to$().find('input[type="text"]').removeAttr('disabled');
                 $("th.select-checkbox").addClass("selected");
-                this.get_selection_default_code_value();
+                this.selection_default_code_value();
             }
         }).on("select", (e, dt, type, indexes)=> {            
             if (typeof indexes !=='undefined'){
-                let def_val = (indexes.length ===1)?this.get_default_code_value(dt.data()['code']):'';
+                let def_val = (indexes.length ===1)?this.default_code_value(dt.data()['code']):'';
                 let el = this.data_table.rows(indexes).nodes().to$().find('input[type="text"]').first();
                 let el_cur_val = el.val();
                 if (el_cur_val ==='') el.val(def_val);
@@ -377,18 +390,17 @@ class vehicles_page {
 
     init(){        
         this.render_filters();
-        if (!this.codes){
-            if (this.reinit) clearTimeout(this.reinit);
-            this.reinit = setTimeout(() => {
-                this.init();   
-            });
+        if (!this.check_data_loaded()){
+            $('#vehicles_page').hide();
+            window.app.ws_working(true);            
+            this.re_init=setTimeout(() => {
+                window.app.ws_working(false);
+                this.init();
+            }, 1000);
             return false;
-        }  
-        window.app.ws_working(true);              
-        window.app.ws_working(true);              
-        this.init_buttons().init_emails().init_tree().init_table().load_email();
-        this.init_done = true;
-        window.app.ws_working(false);
+        }        
+        this.init_buttons().init_emails().init_tree().init_table().load_email();                
+        $('#vehicles_page').show();
     }   
 
     export_table(){        
@@ -431,5 +443,20 @@ class vehicles_page {
         }
         window.app.ws_working(false);
     }
-
+    selection_default_code_value(){        
+        this.data_table.rows({
+            selected: true
+        }).data().each((value, index)=>{
+            let row = this.data_table.row(index);        
+            let el = $(row.node()).find('input[type="text"]').first();
+            if (el.val() ===''){
+                let def_val = this.default_code_value(row.data()['code']);
+                el.val(def_val);
+            }
+        });
+    }
+    default_code_value(code){
+        //console.log(code);
+        return 2;
+    }
 }
