@@ -14,7 +14,9 @@ class vehicles_page {
         this.data_table = false;
         this.cars = false;
         this.email = '';
-        this.emails = {};
+        this.emails = [];
+        this.email_data = {};
+        this.suggested_emails=[];
         this.extend_data_table().get_cars().get_codes().get_emails();
         
     }
@@ -31,9 +33,10 @@ class vehicles_page {
         return this;
     }
     get_emails(){
-        setTimeout(() => {
-            this.data_loaded['emails'] = true;    
-        }, 5000);
+        this.emails = ['','test@test.com','test2@test.com','test3@test.com'];
+        
+        this.data_loaded['emails'] = true;
+        
         
         return this;
     }
@@ -62,23 +65,23 @@ class vehicles_page {
             return this;
         }
         $('.only_when_email_selected').show();
-        let email_data = this.emails[this.email] || false;
+        let email_data = this.email_data[this.email] || false;
         if (!email_data){
             email_data = {
                 codes:{},
                 vehicles:{},
                 settings:{}
             }
-            this.emails[this.email] = email_data;
+            this.email_data[this.email] = email_data;
         }
         window.app.ws_working(true);
         setTimeout(() => {            
-            this.import_table(this.emails[this.email].codes);            
+            this.import_table(email_data['codes']);
         }, 100);        
         return this;
     }
     save_email(){
-        this.emails[this.email].codes = this.export_table();
+        this.email_data[this.email]['codes'] = this.export_table();
         return this;
     }
     set_filter(filter,value){
@@ -205,17 +208,20 @@ class vehicles_page {
     }
     init_emails(){
         let emails = $('#emails');
-        emails.val(this.email);      
         emails.off('change').on('change',()=>{
             this.email = emails.val();
             this.load_email();
         });
 
         emails.select2({
-            placeholder: 'Select an option',
-            width: 'calc(100% - 86px)'
+            placeholder: 'Select an email',
+            width: 'calc(100% - 86px)',
+            data:this.emails
         });
-        
+        emails.val(this.email).trigger('change');
+        return this.init_new_email();        
+    }
+    init_new_email(){
         return this;
     }
     init_tree(){
@@ -399,7 +405,7 @@ class vehicles_page {
             }, 1000);
             return false;
         }        
-        this.init_buttons().init_emails().init_tree().init_table().load_email();                
+        this.init_buttons().init_emails().init_tree().init_table();                
         $('#vehicles_page').show();
     }   
 
@@ -409,7 +415,6 @@ class vehicles_page {
         nodes.find('input[type="text"]').each(function(i, el) {            
             data[$(el).data('code')] = $(el).val();   
         });
-        console.log(data);
         return data;        
     }
 
