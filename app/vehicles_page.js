@@ -190,17 +190,17 @@ class vehicles_page {
         );
         return this;
     }
-    init_select2(){
-        let select2 = $('#select2');
-        select2.val(this.email);      
-        select2.off('change').on('change',()=>{
-            this.email = select2.val();
+    init_emails(){
+        let emails = $('#emails');
+        emails.val(this.email);      
+        emails.off('change').on('change',()=>{
+            this.email = emails.val();
             this.load_email();
         });
 
-        select2.select2({
+        emails.select2({
             placeholder: 'Select an option',
-            width: 'calc(100% - 60px)'
+            width: 'calc(100% - 86px)'
         });
         
         return this;
@@ -214,7 +214,7 @@ class vehicles_page {
         });
         return this;
     }
-    init_filters(){
+    init_buttons(){
         $(".nav-tabs a").off('click').on('click',(e)=>{
             e.preventDefault();            
             this.set_filter('level',e.target.hash.substr(1));
@@ -235,6 +235,22 @@ class vehicles_page {
             this.save_email();
         });
 
+        $('#new_email').off('click').on('click',(e)=>{
+            $('#email_modal').modal('show');
+        });
+        
+
+        $('[data-toggle="popover"]').on('click',(e)=>{
+            let el = $(e.target);
+            el.popover({
+                'content': el.data('popover'),
+                'html': true,                
+                'placement': 'top'
+            }).popover('show');
+            setTimeout(() => {
+                el.popover('hide');
+            }, 500);
+        });
         return this;
     }
     render_filters(){
@@ -370,7 +386,7 @@ class vehicles_page {
         }  
         window.app.ws_working(true);              
         window.app.ws_working(true);              
-        this.init_filters().init_select2().init_tree().init_table().load_email();
+        this.init_buttons().init_emails().init_tree().init_table().load_email();
         this.init_done = true;
         window.app.ws_working(false);
     }   
@@ -389,16 +405,12 @@ class vehicles_page {
         if ($("th.select-checkbox").hasClass("selected")) {         
             $("th.select-checkbox").removeClass("selected");
         }
-        let clear_rows = this.data_table.rows({ selected: true });
-        let els = clear_rows.nodes().to$().find('input[type="text"]')
-        if (clear_values) els.val('');
-        els.attr('disabled', '');
-        clear_rows.deselect();
+        this.data_table.rows({ selected: true }).deselect();
+        this.data_table.rows().nodes().to$().find('input[type="text"]').val('').attr('disabled', '');
+        return this        
     }
 
     import_table(data){
-        console.log(data);
-
         this.clear_table();
         let obj_keys = Object.keys(data);
         let select_rows = [];
