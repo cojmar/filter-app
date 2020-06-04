@@ -3,8 +3,32 @@ class emails_manager_class{
     function __construct(){        
         $this->db = new db_class();
     }
-    function get_email($email){
+    function get_email_data($email){
+        if ($email_id = $this->get_email_id($email)){
+            $ret = array();
+            
+            $sql = "
+                SELECT *
+                FROM `emails`
+                WHERE `id` = {$email_id}
+                LIMIT 1
+            ";        
+            $ret['email'] = $this->db->query($sql)->fetch();
 
+            $sql = "
+                SELECT `code`,`flag`
+                FROM `email_codes`
+                WHERE `email_id` = {$email_id}
+            ";   
+
+            $db_codes = $this->db->query($sql)->fetchAll();
+            $ret['codes'] = array();
+            foreach($db_codes as $code_item){
+                $ret['codes'][$code_item['code']] = $code_item['flag'];
+            }
+            return $ret;
+        }
+        return false;
     }
 
     function delete_email($email){
@@ -22,10 +46,8 @@ class emails_manager_class{
         return false;
     }
 
-    function save_email($data){
-        $out = array();
-        $email_id = false;
-        
+    function save_email($data){        
+        $email_id = false;        
         if (isset($data['email'])){
             if (!empty($data['email']['email'])){
                 if ($email_id =$this->get_email_id($data['email']['email'])){
@@ -43,17 +65,21 @@ class emails_manager_class{
                     DELETE FROM `email_codes`
                     WHERE `email_id` = {$email_id}
                 ");
-                foreach($data['codes'] as $code=>$flag){
-                    $in = array(
-                        "email_id"=>$email_id,
-                        "code"=>$code,
-                        "flag"=> $flag
-                    );
-                    $this->db->array_insert_update($in,"email_codes");
+
+                if (!empty($data['codes'])){
+                    $sql = "
+                        INSERT INTO `email_codes` (`email_id`, `code`, `flag`) VALUES
+                    ";
+                    foreach($data['codes'] as $code=>$flag){
+                        $sql .= "({$this->db->escape($email_id)},{$this->db->escape($code)},{$this->db->escape($flag)}),";
+                    }
+                    $sql = substr($sql,0,-1);
+                    $sql.=";";                    
+                    $this->db->query($sql);
                 }
             }      
         }		
-        return $out;
+        return $email_id;
     }
 
     function get_email_id($email){

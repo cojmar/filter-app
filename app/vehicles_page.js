@@ -66,18 +66,34 @@ class vehicles_page {
         }
         $('.only_when_email_selected').show();
         let email_data = this.email_data[this.email] || false;
-        if (!email_data){
-            email_data = {
-                codes:{},
-                vehicles:{},
-                settings:{}
+        let cb = (email_data2 = false)=>{
+            if (!email_data2){
+                email_data2 = {
+                    codes:{},
+                    vehicles:{},
+                    email:{}
+                }
             }
-            this.email_data[this.email] = email_data;
+            this.email_data[this.email] = email_data2;
+            window.app.ws_working(true);
+            setTimeout(() => {            
+                this.import_table(email_data2['codes']);
+            }, 100);      
+        };
+
+
+
+        if (!email_data){
+            this.ajax_call('get_email/'+this.email,this.email,response_data =>{
+                if(!response_data.error){
+                    cb(response_data);
+                }
+            });
+        }else{
+            cb(email_data);
         }
-        window.app.ws_working(true);
-        setTimeout(() => {            
-            this.import_table(email_data['codes']);
-        }, 100);        
+
+     
         return this;
     }
     add_email(email){

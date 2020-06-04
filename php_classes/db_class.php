@@ -2,7 +2,7 @@
 class db_class{
     static private $connection = false;
     function __construct(){
-    
+        $this->columns_cache = array();
     }
     function connect($host,$username,$password,$dbname)
     {
@@ -41,7 +41,8 @@ class db_class{
 
     function table_columns($table)
 	{
-		if (!$connection = self::$connection) return false;
+        if (!$connection = self::$connection) return false;
+        if (!empty($this->columns_cache[$table])) return $this->columns_cache[$table];
         $columns = array();
         $q = $connection->prepare("SELECT COLUMN_NAME as field FROM information_schema.columns WHERE table_name =:table");
         $q->bindParam(':table', $table);
@@ -51,6 +52,7 @@ class db_class{
         foreach($ret as $column){
             $columns[] = $column['field'];
         }
+        $this->columns_cache[$table] = $columns;
         return $columns;
     }
 

@@ -4,18 +4,23 @@
 		protected function save_email(){
 			$json = file_get_contents('php://input');
 			$data = json_decode($json,1);
-			$out = array();
-			$ok = true;
-
+			$out = array();			
 			$em = new emails_manager_class();
-			$out = $em->save_email($data);			
-			
+			$ok = $em->save_email($data);			
 			$out['status']=($ok)?'saved':'invalid data';
+			$out['id'] = $ok;
 			json_output($out);
 		}
 		protected function get_email(){
-			$json = file_get_contents('php://input');
-			$data = json_decode($json,1);
+			$data = (!empty($this->url_data[0]))?$this->url_data[0]:false;
+			$out = array('error'=>true);
+			if ($data){
+				$em = new emails_manager_class();
+				if ($email_data = $em->get_email_data($data)){
+					$out = $email_data;
+				}
+			}
+			json_output($out);
 		}
 		protected function check_email(){
 			$data = (!empty($this->url_data[0]))?$this->url_data[0]:false;
