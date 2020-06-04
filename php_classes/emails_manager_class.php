@@ -32,7 +32,7 @@ class emails_manager_class{
             }
 
             $sql = "
-                SELECT `vehicle_id`
+                SELECT `type_id`,`type`
                 FROM `email_vehicles`
                 WHERE `email_id` = {$email_id}
             ";   
@@ -40,7 +40,8 @@ class emails_manager_class{
             $db_ret = $this->db->query($sql)->fetchAll();
             $ret['vehicles'] = array();
             foreach($db_ret as $item){
-                $ret['vehicles'][] = $item['vehicle_id'];
+                $id =($item['type']==='vehicle')?$item['type_id']:"{$item['type_id']}_{$item['type']}";
+                $ret['vehicles'][] = $id;
             }
 
             return $ret;
@@ -108,10 +109,21 @@ class emails_manager_class{
 
                 if (!empty($data['vehicles'])){
                     $sql = "
-                        INSERT INTO `email_vehicles` (`email_id`, `vehicle_id`) VALUES
+                        INSERT INTO `email_vehicles` (`email_id`, `type_id`,`type`) VALUES
                     ";
                     foreach($data['vehicles'] as $code=>$vehicle_id){
-                        $sql .= "({$this->db->escape($email_id)},{$this->db->escape($vehicle_id)}),";
+                        $type = 'vehicle';
+                        if (strpos($vehicle_id,"_local_area") !==false){
+                            $type = "local_area";
+                            $vehicle_id = str_replace("_{$type}","",$vehicle_id);
+                        }elseif(strpos($vehicle_id,"_area") !==false){
+                            $type = "area";
+                            $vehicle_id = str_replace("_{$type}","",$vehicle_id);
+                        }elseif(strpos($vehicle_id,"_region") !==false){
+                            $type = "region";
+                            $vehicle_id = str_replace("_{$type}","",$vehicle_id);
+                        }
+                        $sql .= "({$this->db->escape($email_id)},{$this->db->escape($vehicle_id)},{$this->db->escape($type)}),";
                     }
                     $sql = substr($sql,0,-1);
                     $sql.=";";                    

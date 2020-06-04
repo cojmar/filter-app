@@ -55,8 +55,9 @@ class install_class{
         $sqls[] = "
             CREATE TABLE IF NOT EXISTS `email_vehicles` (
                 `email_id` bigint(21) NOT NULL,
-                `vehicle_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,            
-                UNIQUE KEY `email_id` (`email_id`,`vehicle_id`)
+                `type_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,            
+                `type` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+                UNIQUE KEY `email_id` (`email_id`,`type_id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
         ";
 
