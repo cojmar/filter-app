@@ -56,8 +56,6 @@
 			$installer->install();		
 			debug('Done.');
 		}
-       
-
 		protected function build(){
 			$builder = new build_class();
 			$builder->build();

@@ -19,8 +19,42 @@ class vehicles_page {
         this.email_data = {};        
         this.extend_data_table().get_cars().get_codes().get_emails();        
     }
-    show_need_login(){
-        alert('login expired');
+    test_stuff(){     
+       export_tree()
+    }
+    import_tree(data=false){
+        this.tree.uncheckAll();
+        if (typeof data ==='object'){
+            data.forEach(kid => {
+                let node = this.tree.getNodeById(kid);
+                this.tree.check(node);
+            });
+        }
+    }
+    export_tree(){      
+        let result = this.tree.getCheckedNodes();           
+        let find_all_kids = (item)=>{
+            let ret = {};
+            let node = this.tree.getNodeById(item);
+            let children = this.tree.getChildren(node);
+            children.forEach(kid => {
+                ret[String(kid)] = 1;
+            });
+            return ret;
+        }
+        let omit = {};
+        result.forEach(item => {
+            let kids = find_all_kids(item);
+            for (let n in kids) omit[n]=1;            
+        });
+        omit = Object.keys(omit);        
+        let ret = [];
+        result.forEach(item => {
+            if (omit.indexOf(String(item)) ==-1){
+                ret.push(item);
+            }
+        });
+        return ret;
     }
     ajax_call(url = false,data = false,cb=false,cb_catch=false){
         window.app.ajax_call(url,data,cb,cb_catch);
@@ -70,7 +104,7 @@ class vehicles_page {
             if (!email_data2){
                 email_data2 = {
                     codes:{},
-                    vehicles:{},
+                    vehicles:[],
                     email:{}
                 }
             }
@@ -78,6 +112,7 @@ class vehicles_page {
             window.app.ws_working(true);
             setTimeout(() => {            
                 this.import_table(email_data2['codes']);
+                this.import_tree(email_data2['vehicles']);
             }, 100);      
         };
 
@@ -138,6 +173,7 @@ class vehicles_page {
     }
     save_email(e=false){
         this.email_data[this.email]['codes'] = this.export_table();
+        this.email_data[this.email]['vehicles'] = this.export_tree();
         let el =(e)?$(e.target):false;
         
         this.ajax_call('save_email',{
@@ -145,7 +181,8 @@ class vehicles_page {
                 email:this.email,
                 send_interval:0
             },
-            codes: this.export_table()
+            codes: this.email_data[this.email]['codes'],
+            vehicles: this.email_data[this.email]['vehicles']
         },response_data =>{
             if (el){
                 el.popover({
@@ -375,6 +412,10 @@ class vehicles_page {
         $('#button_delete').off('click').on('click',(e)=>{
             this.delete_email(e);
         });
+        $('#button_test').off('click').on('click',(e)=>{
+            this.test_stuff();
+        });
+        
         
 
        

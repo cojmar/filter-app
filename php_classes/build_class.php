@@ -15,7 +15,7 @@ class build_class{
     function build_cars(){
         $sql = "
             SELECT *
-            FROM  `cars`
+            FROM  `cars`            
         ";
         $cars = $this->db->query($sql)->fetchAll();
         $out = array();
@@ -71,6 +71,7 @@ class build_class{
             FROM  `codes`
             WHERE 
                 `system` <> 'DM1'
+            limit 10
         ";
         $codes = $this->db->query($sql)->fetchAll();
         $out = array();

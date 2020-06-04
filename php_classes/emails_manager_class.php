@@ -5,7 +5,11 @@ class emails_manager_class{
     }
     function get_email_data($email){
         if ($email_id = $this->get_email_id($email)){
-            $ret = array();
+            $ret = array(
+                "email"=>array(),
+                "codes"=>array(),
+                "vehicles"=>array()
+            );
             
             $sql = "
                 SELECT *
@@ -107,7 +111,12 @@ class emails_manager_class{
         }
         $out = array(
             'emails'=>$emails,
-            'suggested_emails'=>array('admin@test.com','worker@test.com')
+            'suggested_emails'=>array(
+                'portal@wienerlinien.at',
+                'thoreb@wienerlinien.at',
+                'thoreb-service@wienerlinien.at',
+                'michael.o@thoreb.com'
+            )
         );
         return $out;        
     }
