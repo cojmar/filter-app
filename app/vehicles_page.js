@@ -81,13 +81,56 @@ class vehicles_page {
         return this;
     }
     add_email(email){
-        this.emails.push(email);
-        let newOption = new Option(email, email, false, false);
-        $('#emails').append(newOption).val(email).trigger('change');
-        
+        this.ajax_call('check_email/'+email,'',response_data =>{
+            if(!response_data.status){
+                this.ajax_call('save_email',{
+                    email: {
+                        email:email,
+                        send_interval:0
+                    }
+                },response_data =>{
+                    $('#email_modal').modal('hide');            
+                    this.emails.push(email);
+                    let newOption = new Option(email, email, false, false);
+                    $('#emails').append(newOption).val(email).trigger('change');    
+                });
+            }else{
+                let el = $('#add_email_btn');
+                el.popover({
+                    'content': 'email already exists',
+                    'html': true,                
+                    'placement': 'top'
+                }).popover('show');
+                setTimeout(() => {
+                    el.popover('dispose');
+                }, 500);
+            }
+        });
     }
-    save_email(){
+    save_email(e=false){
         this.email_data[this.email]['codes'] = this.export_table();
+        let el =(e)?$(e.target):false;
+        
+        this.ajax_call('save_email',{
+            email: {
+                email:this.email,
+                send_interval:0
+            },
+            codes: this.export_table()
+        },response_data =>{
+            if (el){
+                el.popover({
+                    'content': response_data.status,
+                    'html': true,                
+                    'placement': 'top'
+                }).popover('show');
+                setTimeout(() => {
+                    el.popover('dispose');
+                }, 600);
+            }
+            console.log(response_data);
+        });
+
         return this;
     }
     set_filter(filter,value){
@@ -236,8 +279,7 @@ class vehicles_page {
             let suggested = this.suggested_emails.reduce((acc,email)=>{
                 if (this.emails.indexOf(email)==-1) acc.push(email); 
                 return acc;
-            },[]);
-            console.log(suggested);
+            },[]);            
             add_email.select2('destroy').html('').select2({
                 placeholder: 'Add an email',
                 width: '100%',
@@ -257,8 +299,7 @@ class vehicles_page {
             if (!this.validateEmail(email_to_add)) error = "invalid email";
             if(!error && this.emails.indexOf(email_to_add)!==-1) error = "email already exists";                        
             if(!error){            
-                this.add_email(email_to_add);
-                $('#email_modal').modal('hide');
+                this.add_email(email_to_add);                
                 return true;
             }
             el.popover({
@@ -300,7 +341,7 @@ class vehicles_page {
         });
 
         $('#button_save').off('click').on('click',(e)=>{
-            this.save_email();
+            this.save_email(e);
         });
 
        
@@ -315,6 +356,9 @@ class vehicles_page {
                 el.popover('hide');
             }, 500);
         });
+
+        
+
         return this;
     }
     render_filters(){

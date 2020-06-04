@@ -1,14 +1,36 @@
 <?php
 	class router{
 		//==Routes
-		protected function set_email(){
+		protected function save_email(){
+			$json = file_get_contents('php://input');
+			$data = json_decode($json,1);
+			$out = array();
+			$ok = true;
+
+			$em = new emails_manager_class();
+			$out = $em->save_email($data);			
 			
+			$out['status']=($ok)?'saved':'invalid data';
+			json_output($out);
+		}
+		protected function get_email(){
+			$json = file_get_contents('php://input');
+			$data = json_decode($json,1);
+		}
+		protected function check_email(){
+			$data = (!empty($this->url_data[0]))?$this->url_data[0]:false;
+			$out = array('status'=>false);
+			if ($data){
+				$em = new emails_manager_class();
+				if ($em->get_email_id($data)){
+					$out['status'] = true;
+				}
+			}
+			json_output($out);
 		}
 		protected function get_emails(){
-			$out = array(
-				'emails'=>array(),
-				'suggested_emails'=>array('dev@test@.com','admin@test.com','worker@test.com')
-			);
+			$em = new emails_manager_class();
+			$out = $em->get_emails();
 			json_output($out);
 		}		
 		protected function import(){
@@ -42,10 +64,17 @@
 			header("HTTP/1.1 401 Unauthorized");
             die('Unauthorized access, please use portal to login.');
 		}
+		public function check_login(){
+			$sara = new sara_class();				
+			$out = array(
+				'login'=>$sara->check_login()
+			);
+			json_output($out);
+		}
 		public function default_route(){
             header("HTTP/1.0 404 Not Found");
             die;
-		}		
+		}
 		//==Custom Init
 		private function init(){
 			$this->db = new db_class();

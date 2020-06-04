@@ -4,32 +4,48 @@ define(function(require){
             this.settings_key = 'filter_app';
             this.page_controllers = {};
             this.views = {};
-            this.logged_in = this.check_login();            
-            this.init_settings().init_dom().nav();
+            this.logged_in = true;                        
             this.working = 0;    
+            this.ajax_call('check_login','',(response_data)=>{
+                if (typeof response_data.login !=='undefined'){
+                    if (response_data.login) $('body').show();
+                }
+            })
+            this.init_settings().init_dom().nav();
+        }
+        need_login(){
+            $('body').hide();
+            setTimeout(() => {
+                alert('Login expired');    
+            }, 100);    
         }
         ajax_call(url = false,data = false,cb=false,cb_catch=false){
             if (!url) return this;
-            window.app.ws_working(true);
-            let opts =(typeof data ==='object')? {method: 'post',body:JSON.stringify(data)}:{};        
-            fetch(url, opts)
-            .then(response =>{
-                if (!response.ok){
-                    throw Error(response.statusText);
-                }else{
-                    return response.json()
-                }             
-            })
-            .then(response_data =>{
-                window.app.ws_working(false);
-                if (typeof cb === 'function') cb(response_data)
-            }).catch(error=>{
-                if (typeof cb_catch === 'function') cb_catch(response_data)
-            });
+            this.ws_working(true);
+            let opts = {cache: "no-store"};
+            opts = (typeof data ==='object')?{cache: "no-store",method: 'post',body:JSON.stringify(data)}:opts;
+
+            setTimeout(() => {
+                fetch(url, opts)
+                .then(response =>{
+                    this.ws_working(false);
+                    if (!response.ok){
+                        throw Error(response.statusText);
+                    }else{
+                        return response.json()
+                    }             
+                })
+                .then(response_data =>{                
+                    if (typeof cb === 'function') cb(response_data)
+                }).catch(error=>{
+                    if (typeof cb_catch === 'function') cb_catch(response_data);
+                    else this.need_login();
+                });
+            }, 100);
+
+            return this
         }
-        check_login(){
-            return true;
-        }
+      
         nav(){
             this.ws_working(true);
             if (!this.page) this.page = 'vehicles';
