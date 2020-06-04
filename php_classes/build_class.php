@@ -15,7 +15,7 @@ class build_class{
     function build_cars(){
         $sql = "
             SELECT *
-            FROM  `cars`            
+            FROM  `vehicles`            
         ";
         $cars = $this->db->query($sql)->fetchAll();
         $out = array();

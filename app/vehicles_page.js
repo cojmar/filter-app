@@ -22,6 +22,26 @@ class vehicles_page {
     test_stuff(){     
        export_tree()
     }
+    import_email_settings(data){
+        if (typeof data['send_interval'] ==='undefined'){
+            data['send_interval'] = 0;
+        }        
+        this.render_email_settings(data);
+    }
+    render_email_settings(data){
+        $('#inlineRadio1').removeAttr('checked');
+        $('#inlineRadio2').removeAttr('checked');
+        $('#email_interval').val('');
+        $('#email_interval').attr('disabled','disabled');
+        
+        if (parseFloat(data['send_interval']) === 0){
+            $('#inlineRadio1').attr('checked', 'checked');
+        }else{
+            $('#inlineRadio2').attr('checked', 'checked');
+            $('#email_interval').val(data['send_interval']);
+            $('#email_interval').removeAttr('disabled');
+        }
+    }
     import_tree(data=false){
         this.tree.uncheckAll();
         if (typeof data ==='object'){
@@ -113,6 +133,7 @@ class vehicles_page {
             setTimeout(() => {            
                 this.import_table(email_data2['codes']);
                 this.import_tree(email_data2['vehicles']);
+                this.import_email_settings(email_data2['email']);
             }, 100);      
         };
 
@@ -379,6 +400,15 @@ class vehicles_page {
         });
         return this;
     }
+    init_radio(){
+        $('#inlineRadio1').off('click').on('click',(e)=>{
+            $('#email_interval').attr('disabled','disabled');            
+        });
+        $('#inlineRadio2').off('click').on('click',(e)=>{
+            $('#email_interval').removeAttr('disabled');
+        });        
+        return this;
+    }
     init_tree(){
         this.tree = $('#tree').tree({
             primaryKey: 'id',
@@ -631,7 +661,7 @@ class vehicles_page {
         $('#vehicles_page').hide();
         for (let i=0;i<=2;i++) window.app.ws_working(true);
         setTimeout(() => {
-            this.init_buttons().init_emails().init_add_email().init_tree().init_table();                
+            this.init_buttons().init_emails().init_radio().init_add_email().init_tree().init_table();                
             $('#vehicles_page').show();
             for (let i=0;i<=2;i++)  window.app.ws_working(false);                
         }, 100);

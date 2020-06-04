@@ -156,7 +156,7 @@ class import_class{
 
     function import_cars_csv($data){        
         foreach($data as $row){            
-            $this->db->array_insert_update($row,"cars");            
+            $this->db->array_insert_update($row,"vehicles");            
         }
     }
 

@@ -7,9 +7,9 @@ class install_class{
         $this->install_db();
     }
     function install_db(){
-        $sqls = array();
+        $sqls = array();       
         $sqls[] = "
-            CREATE TABLE IF NOT EXISTS `cars` (
+            CREATE TABLE IF NOT EXISTS `vehicles` (
                 `id` bigint(21) NOT NULL,
                 `manufacturer` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
                 `manufacturerSerial` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -48,16 +48,16 @@ class install_class{
             CREATE TABLE IF NOT EXISTS `email_codes` (
                 `email_id` bigint(21) NOT NULL,
                 `code` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-                `flag` float NOT NULL,
+                `nach` float NOT NULL,
                 UNIQUE KEY `email_id` (`email_id`,`code`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
         ";
         $sqls[] = "
             CREATE TABLE IF NOT EXISTS `email_vehicles` (
                 `email_id` bigint(21) NOT NULL,
-                `type_id` varchar(255) COLLATE utf8_unicode_ci NOT NULL,            
+                `description` varchar(255) COLLATE utf8_unicode_ci NOT NULL,            
                 `type` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-                UNIQUE KEY `email_id` (`email_id`,`type_id`)
+                UNIQUE KEY `email_id` (`email_id`,`description`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
         ";
 

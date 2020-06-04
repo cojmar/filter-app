@@ -20,7 +20,7 @@ class emails_manager_class{
             $ret['email'] = $this->db->query($sql)->fetch();
 
             $sql = "
-                SELECT `code`,`flag`
+                SELECT `code`,`nach`
                 FROM `email_codes`
                 WHERE `email_id` = {$email_id}
             ";   
@@ -28,11 +28,11 @@ class emails_manager_class{
             $db_ret = $this->db->query($sql)->fetchAll();
             $ret['codes'] = array();
             foreach($db_ret as $code_item){
-                $ret['codes'][$code_item['code']] = $code_item['flag'];
+                $ret['codes'][$code_item['code']] = $code_item['nach'];
             }
 
             $sql = "
-                SELECT `type_id`,`type`
+                SELECT `description`,`type`
                 FROM `email_vehicles`
                 WHERE `email_id` = {$email_id}
             ";   
@@ -40,7 +40,7 @@ class emails_manager_class{
             $db_ret = $this->db->query($sql)->fetchAll();
             $ret['vehicles'] = array();
             foreach($db_ret as $item){
-                $id =($item['type']==='vehicle')?$item['type_id']:"{$item['type_id']}_{$item['type']}";
+                $id =($item['type']==='vehicle')?$item['type_id']:"{$item['description']}_{$item['type']}";
                 $ret['vehicles'][] = $id;
             }
 
@@ -89,10 +89,10 @@ class emails_manager_class{
 
                 if (!empty($data['codes'])){
                     $sql = "
-                        INSERT INTO `email_codes` (`email_id`, `code`, `flag`) VALUES
+                        INSERT INTO `email_codes` (`email_id`, `code`, `nach`) VALUES
                     ";
-                    foreach($data['codes'] as $code=>$flag){
-                        $sql .= "({$this->db->escape($email_id)},{$this->db->escape($code)},{$this->db->escape($flag)}),";
+                    foreach($data['codes'] as $code=>$nach){
+                        $sql .= "({$this->db->escape($email_id)},{$this->db->escape($code)},{$this->db->escape($nach)}),";
                     }
                     $sql = substr($sql,0,-1);
                     $sql.=";";                    
@@ -109,7 +109,7 @@ class emails_manager_class{
 
                 if (!empty($data['vehicles'])){
                     $sql = "
-                        INSERT INTO `email_vehicles` (`email_id`, `type_id`,`type`) VALUES
+                        INSERT INTO `email_vehicles` (`email_id`, `description`,`type`) VALUES
                     ";
                     foreach($data['vehicles'] as $code=>$vehicle_id){
                         $type = 'vehicle';
