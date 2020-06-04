@@ -123,6 +123,19 @@ class vehicles_page {
             }
         });
     }
+    delete_email(e=false){
+        let el =(e)?$(e.target):false;
+        if (this.email === '') return this;
+        if(confirm(`Are u sure u want to delete "${this.email}" `)){
+            this.ajax_call('delete_email/'+this.email,'',response_data =>{
+                let i = this.emails.indexOf(this.email);
+                if (i!=-1) this.emails.splice(i,1);
+                $('#emails').select2('destroy').html('');
+                this.email = '';
+                this.init_emails(); 
+            });
+        }
+    }
     save_email(e=false){
         this.email_data[this.email]['codes'] = this.export_table();
         let el =(e)?$(e.target):false;
@@ -282,7 +295,7 @@ class vehicles_page {
             data:this.emails
         });
         emails.val(this.email).trigger('change');
-        return this.init_add_email();        
+        return this;        
     }
     validateEmail(email) {
         const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -359,6 +372,10 @@ class vehicles_page {
         $('#button_save').off('click').on('click',(e)=>{
             this.save_email(e);
         });
+        $('#button_delete').off('click').on('click',(e)=>{
+            this.delete_email(e);
+        });
+        
 
        
         $('[data-toggle="popover"]').on('click',(e)=>{
@@ -573,7 +590,7 @@ class vehicles_page {
         $('#vehicles_page').hide();
         for (let i=0;i<=2;i++) window.app.ws_working(true);
         setTimeout(() => {
-            this.init_buttons().init_emails().init_tree().init_table();                
+            this.init_buttons().init_emails().init_add_email().init_tree().init_table();                
             $('#vehicles_page').show();
             for (let i=0;i<=2;i++)  window.app.ws_working(false);                
         }, 100);

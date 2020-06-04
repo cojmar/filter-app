@@ -11,6 +11,15 @@
 			$out['id'] = $ok;
 			json_output($out);
 		}
+		protected function delete_email(){
+			$data = (!empty($this->url_data[0]))?$this->url_data[0]:false;
+			$out = array('status'=>false);
+			if ($data){
+				$em = new emails_manager_class();
+				$out['status'] = $em->delete_email($data);				
+			}
+			json_output($out);	
+		}
 		protected function get_email(){
 			$data = (!empty($this->url_data[0]))?$this->url_data[0]:false;
 			$out = array('error'=>true);

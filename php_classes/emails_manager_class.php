@@ -32,7 +32,7 @@ class emails_manager_class{
     }
 
     function delete_email($email){
-        if ($email_id = $this->get_email_id($data['email']['email'])){
+        if ($email_id = $this->get_email_id($email)){
             $this->db->query("
                 DELETE FROM `email_codes`
                 WHERE `email_id` = {$email_id}
