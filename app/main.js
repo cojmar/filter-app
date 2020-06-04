@@ -3,9 +3,29 @@ define(function(require){
         constructor(){
             this.settings_key = 'filter_app';
             this.page_controllers = {};
+            this.views = {};
             this.logged_in = this.check_login();            
             this.init_settings().init_dom().nav();
             this.working = 0;    
+        }
+        ajax_call(url = false,data = false,cb=false,cb_catch=false){
+            if (!url) return this;
+            window.app.ws_working(true);
+            let opts =(typeof data ==='object')? {method: 'post',body:JSON.stringify(data)}:{};        
+            fetch(url, opts)
+            .then(response =>{
+                if (!response.ok){
+                    throw Error(response.statusText);
+                }else{
+                    return response.json()
+                }             
+            })
+            .then(response_data =>{
+                window.app.ws_working(false);
+                if (typeof cb === 'function') cb(response_data)
+            }).catch(error=>{
+                if (typeof cb_catch === 'function') cb_catch(response_data)
+            });
         }
         check_login(){
             return true;
@@ -66,8 +86,7 @@ define(function(require){
             else $('#loader').hide();
         }
         
-        get_view(view,done){
-            this.ws_working(true);
+        get_view(view,done){            
             if (view){
                 view = view.split('.').join('');
                 view = this.base_url+'views/'+view+'.html';

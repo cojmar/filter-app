@@ -1,6 +1,9 @@
 <?php
 	class router{
 		//==Routes
+		protected function set_email(){
+			
+		}
 		protected function get_emails(){
 			$out = array(
 				'emails'=>array(),

@@ -22,49 +22,32 @@ class vehicles_page {
     show_need_login(){
         alert('login expired');
     }
+    ajax_call(url = false,data = false,cb=false,cb_catch=false){
+        window.app.ajax_call(url,data,cb,cb_catch);
+        return this;
+    }
     get_cars(){
         this.data_loaded['cars'] = false;
-        window.app.ws_working(true);
-        fetch('assets/build/cars.json')
-        .then(response => response.json())
-        .then(response_data =>{
+        this.ajax_call('assets/build/cars.json','',response_data =>{
             this.cars = response_data.data;
             this.data_loaded['cars'] = true;
-            window.app.ws_working(false);
         });
         return this;
     }
     get_emails(){
         this.data_loaded['emails'] = false;
-        window.app.ws_working(true);
-        fetch('get_emails')
-        .then(response =>{
-            if (!response.ok){
-                throw Error(response.statusText);
-            }else{
-                return response.json()
-            }             
-        })
-        .then(response_data =>{
-            console.log(response_data)
+        this.ajax_call('get_emails','',response_data =>{
             this.emails = response_data['emails'];
             this.suggested_emails = response_data['suggested_emails'];            
             this.data_loaded['emails'] = true;
-            window.app.ws_working(false);
-        }).catch(error=>{
-           this.show_need_login();
         });
         return this;
     }
     get_codes(){        
         this.data_loaded['codes'] = false;
-        window.app.ws_working(true);
-        fetch('assets/build/codes.json')
-        .then(response => response.json())
-        .then(response_data =>{
+        this.ajax_call('assets/build/codes.json','',response_data =>{
             this.codes = response_data.data;
             this.data_loaded['codes'] = true;
-            window.app.ws_working(false);
         });
         return this;
     }
@@ -515,17 +498,24 @@ class vehicles_page {
     }
 
     init(){        
+     
         this.render_filters();
         if (!this.check_data_loaded()){
             $('#vehicles_page').hide();
-            window.app.ws_working(true);            
+            for (let i=0;i<=2;i++) window.app.ws_working(true);
             this.re_init=setTimeout(() => {
-                window.app.ws_working(false);
+                for (let i=0;i<=2;i++)  window.app.ws_working(false);                
                 this.init();
             }, 1000);
             return false;
         }        
-        this.init_buttons().init_emails().init_tree().init_table();                
-        $('#vehicles_page').show();
+       
+        $('#vehicles_page').hide();
+        for (let i=0;i<=2;i++) window.app.ws_working(true);
+        setTimeout(() => {
+            this.init_buttons().init_emails().init_tree().init_table();                
+            $('#vehicles_page').show();
+            for (let i=0;i<=2;i++)  window.app.ws_working(false);                
+        }, 100);
     }   
 }
