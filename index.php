@@ -1,26 +1,43 @@
 <?php
 	class router{
 		//==Routes
-		public function import(){
+		protected function get_emails(){
+			$out = array(
+				'emails'=>array(),
+				'suggested_emails'=>array('dev@test@.com','admin@test.com','worker@test.com')
+			);
+			json_output($out);
+		}		
+		protected function import(){
             $importer = new import_class();
             $importer->import();
 		}
-		public function install(){
-			$importer = new import_class();
-			$importer->install_db();
-			
+		protected function install(){
+			$installer = new install_class();
+			$installer->install();		
+			debug('Done.');
 		}
-        public function client(){
-            $out = file_get_contents('client.html');
-            die($out);
-		}
+       
 
-		public function build(){
+		protected function build(){
 			$builder = new build_class();
 			$builder->build();
 		}
-		public function test(){
-			$this->db->table_columns('codes');
+		protected function test(){			
+			$ret = $this->db->table_columns('codes');
+			if (empty($ret)){
+				debug("DB not working!");
+			}else{
+				debug("DB ok.");
+			}			
+		}
+		public function client(){
+            $out = file_get_contents('client.html');
+            die($out);
+		}
+		public function need_login(){
+			header("HTTP/1.1 401 Unauthorized");
+            die('Unauthorized access, please use portal to login.');
 		}
 		public function default_route(){
             header("HTTP/1.0 404 Not Found");
@@ -35,26 +52,40 @@
 		function __construct()
 		{
 			set_time_limit(0);
+			// PROTECTED functions require login
 			// Get url segments try to find a non private function with same name as 1st segment and run it
 			// If not try to lunch default_route()
 			// $this->route will be the 1st segment, 
-			// $this->url_data will be array of rest of segments if any
-			$this->route = "client";
-			$this->url_data = array();
-			if ($route_data = $this->get_route_data()){				
-                $this->route = "default_route";
-				 $route = array_shift($route_data);
-				 $this->url_data = $route_data;
-				 if (method_exists($this,$route) && $route !==__FUNCTION__)
-				 {				
-					 $reflection = new ReflectionMethod($this, $route);
-					 if ($reflection->isPublic()) $this->route =  $route;
-				 }
+			// $this->url_data will be array of rest of segments if any			
+			$this->route = "client";//default route on empty segments
+			$this->url_data = array();			
+			$ok_run_route = true;
+			if ($route_data = $this->get_route_data()){
+				$this->route = array_shift($route_data);
+				$this->url_data = $route_data;
 			}
-			$route = $this->route;
-			//==Run custom init
-			if (method_exists($this,'init')) $this->init();
-			if (method_exists($this,$route)) $this->$route();			
+			if (method_exists($this,$this->route) && $this->route !==__FUNCTION__)
+			{				
+				$reflection = new ReflectionMethod($this, $this->route);
+				$needs_login = (!$reflection->isPublic());
+				$ok_run_route = ($needs_login)?false:true;
+				if (!$ok_run_route){
+					$sara = new sara_class();
+					$ok_run_route = $sara->check_login();
+				} 				
+			}
+			else{
+				$this->route = "default_route";
+			}
+			if ($ok_run_route){				
+				$route = $this->route;
+				//==Run custom init
+				if (method_exists($this,'init')) $this->init();
+				//==Run route
+				if (method_exists($this,$route)) $this->$route();
+			}else{
+				if (method_exists($this,'need_login')) $this->need_login();
+			}
 		}
 		private function get_route_data()
 		{	//==Processes url segments delimited by / returns array of segments or false
@@ -78,6 +109,11 @@
 	ini_set('display_errors', 1);
 	error_reporting(E_ALL);
 	set_time_limit(0);
+	function json_output($data=false){
+		$out = (is_array($data) || is_object($data))?json_encode($data):json_encode(array($data));
+		header('Content-Type: application/json');
+		die($out);
+	}
 	function debug($data,$mode=NULL)
 	{	
 		switch($mode)

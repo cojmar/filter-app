@@ -19,9 +19,12 @@ class vehicles_page {
         this.email_data = {};        
         this.extend_data_table().get_cars().get_codes().get_emails();        
     }
-  
+    show_need_login(){
+        alert('login expired');
+    }
     get_cars(){
-       window.app.ws_working(true);
+        this.data_loaded['cars'] = false;
+        window.app.ws_working(true);
         fetch('assets/build/cars.json')
         .then(response => response.json())
         .then(response_data =>{
@@ -32,12 +35,29 @@ class vehicles_page {
         return this;
     }
     get_emails(){
-        this.emails = ['test@test.com','test2@test.com','test3@test.com'];
-        this.suggested_emails = ['dev@test@.com','admin@test.com','worker@test.com'];        
-        this.data_loaded['emails'] = true;       
+        this.data_loaded['emails'] = false;
+        window.app.ws_working(true);
+        fetch('get_emails')
+        .then(response =>{
+            if (!response.ok){
+                throw Error(response.statusText);
+            }else{
+                return response.json()
+            }             
+        })
+        .then(response_data =>{
+            console.log(response_data)
+            this.emails = response_data['emails'];
+            this.suggested_emails = response_data['suggested_emails'];            
+            this.data_loaded['emails'] = true;
+            window.app.ws_working(false);
+        }).catch(error=>{
+           this.show_need_login();
+        });
         return this;
     }
     get_codes(){        
+        this.data_loaded['codes'] = false;
         window.app.ws_working(true);
         fetch('assets/build/codes.json')
         .then(response => response.json())
@@ -227,7 +247,7 @@ class vehicles_page {
         return re.test(String(email).toLowerCase());
     }
     init_add_email(){
-        let add_email = $('#add_email');
+        let add_email = $('#add_email');        
         add_email.select2();
         $('#new_email').off('click').on('click',(e)=>{            
             let suggested = this.suggested_emails.reduce((acc,email)=>{
@@ -436,20 +456,7 @@ class vehicles_page {
         return this;
     }
 
-    init(){        
-        this.render_filters();
-        if (!this.check_data_loaded()){
-            $('#vehicles_page').hide();
-            window.app.ws_working(true);            
-            this.re_init=setTimeout(() => {
-                window.app.ws_working(false);
-                this.init();
-            }, 1000);
-            return false;
-        }        
-        this.init_buttons().init_emails().init_tree().init_table();                
-        $('#vehicles_page').show();
-    }   
+
 
     export_table(){        
         let data = {};        
@@ -506,4 +513,19 @@ class vehicles_page {
         //console.log(code);
         return 2;
     }
+
+    init(){        
+        this.render_filters();
+        if (!this.check_data_loaded()){
+            $('#vehicles_page').hide();
+            window.app.ws_working(true);            
+            this.re_init=setTimeout(() => {
+                window.app.ws_working(false);
+                this.init();
+            }, 1000);
+            return false;
+        }        
+        this.init_buttons().init_emails().init_tree().init_table();                
+        $('#vehicles_page').show();
+    }   
 }
