@@ -25,11 +25,24 @@ class emails_manager_class{
                 WHERE `email_id` = {$email_id}
             ";   
 
-            $db_codes = $this->db->query($sql)->fetchAll();
+            $db_ret = $this->db->query($sql)->fetchAll();
             $ret['codes'] = array();
-            foreach($db_codes as $code_item){
+            foreach($db_ret as $code_item){
                 $ret['codes'][$code_item['code']] = $code_item['flag'];
             }
+
+            $sql = "
+                SELECT `vehicle_id`
+                FROM `email_vehicles`
+                WHERE `email_id` = {$email_id}
+            ";   
+
+            $db_ret = $this->db->query($sql)->fetchAll();
+            $ret['vehicles'] = array();
+            foreach($db_ret as $item){
+                $ret['vehicles'][] = $item['vehicle_id'];
+            }
+
             return $ret;
         }
         return false;
@@ -44,6 +57,10 @@ class emails_manager_class{
             $this->db->query("
                 DELETE FROM `emails`
                 WHERE `id` = {$email_id}
+            ");
+            $this->db->query("
+                DELETE FROM `email_vehicles`
+                WHERE `email_id` = {$email_id}
             ");
             return true;
         }
@@ -62,8 +79,7 @@ class emails_manager_class{
             }
         }
 
-        if ($email_id && isset($data['codes'])){
-            $out['codes'] = array();
+        if ($email_id && isset($data['codes'])){            
             if (is_array($data['codes'])){                
                 $this->db->query("
                     DELETE FROM `email_codes`
@@ -82,7 +98,27 @@ class emails_manager_class{
                     $this->db->query($sql);
                 }
             }      
-        }		
+        }
+        if ($email_id && isset($data['vehicles'])){            
+            if (is_array($data['codes'])){                
+                $this->db->query("
+                    DELETE FROM `email_vehicles`
+                    WHERE `email_id` = {$email_id}
+                ");
+
+                if (!empty($data['vehicles'])){
+                    $sql = "
+                        INSERT INTO `email_vehicles` (`email_id`, `vehicle_id`) VALUES
+                    ";
+                    foreach($data['vehicles'] as $code=>$vehicle_id){
+                        $sql .= "({$this->db->escape($email_id)},{$this->db->escape($vehicle_id)}),";
+                    }
+                    $sql = substr($sql,0,-1);
+                    $sql.=";";                    
+                    $this->db->query($sql);
+                }
+            }      
+        }
         return $email_id;
     }
 
