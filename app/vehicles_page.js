@@ -20,7 +20,15 @@ class vehicles_page {
         this.extend_data_table().get_cars().get_codes().get_emails();        
     }
     test_stuff(){     
-       export_tree()
+        this.get_email_interval()
+    }
+    get_email_interval(){
+        let attr = $('#inlineRadio1').attr('checked');        
+        let interval = (attr ==='checked')?0:$('#email_interval').val();
+        //if (!interval) interval = 0;
+        console.log(attr);
+        console.log(interval);
+        return interval;
     }
     import_email_settings(data){
         if (typeof data['send_interval'] ==='undefined'){
