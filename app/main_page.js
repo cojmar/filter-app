@@ -259,8 +259,8 @@ class main_page {
                 paginate: {
                     first: '<i class="fas fa-arrow-alt-circle-left"></i>',
                     last: '<i class="fas fa-arrow-alt-circle-right"></i>',
-                    next: '<i class="fas fa-caret-circle-right"></i>',
-                    previous: '<i class="fas fa-caret-circle-left"></i>'
+                    next: '<i class="fas fa-chevron-circle-right"></i>',
+                    previous: '<i class="fas fa-chevron-circle-left"></i>'
                 },
                 select: {
                     rows: {
