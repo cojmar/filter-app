@@ -48,7 +48,7 @@ define(function(require){
       
         nav(){
             this.ws_working(true);
-            if (!this.page) this.page = 'vehicles';
+            if (!this.page) this.page = 'main';
             let url_data =window.location.href.split('#');
             this.base_url = window.location.origin + window.location.pathname;  
             if(this.base_url.indexOf('.') !==-1){

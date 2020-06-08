@@ -1,4 +1,4 @@
-class vehicles_page {
+class main_page {
     constructor(){
         this.data_loaded={
             emails:false,
@@ -534,7 +534,7 @@ class vehicles_page {
             columns: [
                 { data: "sel", title: "" },
                 { data: "icon", title: "Icon" },
-                { data: "code", title: "Code" },
+                { data: "code", title: "Code"},
                 { data: "type", title: "Type" },
                 { data: "system", title: "System" },
                 { data: "sel", title: "Nach" },
@@ -595,8 +595,6 @@ class vehicles_page {
         return this;
     }
 
-
-
     export_table(){        
         let data = {};        
         let nodes = $(this.data_table.rows({ selected: true }).nodes());
@@ -619,16 +617,17 @@ class vehicles_page {
         this.clear_table();
         let obj_keys = Object.keys(data);
         let select_rows = [];
-    
-        this.data_table.column(2).data().each((value, index)=>{
+        let index_map = this.data_table.rows()[0];
+        this.data_table.column(2).data().each((value, index) => {
             if (obj_keys.includes(value)) {
-                select_rows.push(index);
-                let row = this.data_table.row(index);                
+                select_rows.push(index_map[index]);
+                let row = this.data_table.row(index_map[index]);
+                let node = row.node();
+                console.log(node);
                 $(row.node()).find('input[type="text"]').first().val(data[value]).removeAttr('disabled');
             }
         });
         this.data_table.rows(select_rows).select();
-
         if (this.data_table.rows({
             selected: true
         }).count() === this.data_table.rows().count()) {

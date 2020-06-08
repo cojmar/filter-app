@@ -70,8 +70,7 @@ class build_class{
             SELECT *
             FROM  `codes`
             WHERE 
-                `system` <> 'DM1'
-            limit 10
+                `system` <> 'DM1'            
         ";
         $codes = $this->db->query($sql)->fetchAll();
         $out = array();
