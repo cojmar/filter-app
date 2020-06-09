@@ -18,15 +18,13 @@ class settings_page {
         this.extend_data_table();        
     }
     test_stuff(){     
-        this.get_email_interval()
+        console.log(this.get_email_interval())
     }
     get_email_interval(){
-        let attr = $('#inlineRadio1').attr('checked');        
-        let interval = (attr ==='checked')?0:$('#email_interval').val();
-        //if (!interval) interval = 0;
-        console.log(attr);
-        console.log(interval);
-        return interval;
+        let el = $('#email_interval');
+        let val = parseFloat(el.val()) || 0;
+        val = (el.attr('disabled'))?0:val;
+        return val;
     }
     import_email_settings(data){
         if (typeof data['send_interval'] ==='undefined'){
@@ -189,16 +187,7 @@ class settings_page {
             $('#email_interval').removeAttr('disabled');
         });        
         return this;
-    }
-    init_tree(){
-        this.tree = $('#tree').tree({
-            primaryKey: 'id',
-            uiLibrary: 'bootstrap4',
-            dataSource: 'assets/build/cars.json',
-            checkboxes: true
-        });
-        return this;
-    }
+    }    
     init_buttons(){
         $(".nav-tabs a").off('click').on('click',(e)=>{
             e.preventDefault();            
@@ -367,14 +356,13 @@ class settings_page {
         });
     }
     default_code_value(code){
-        //console.log(code);
-        return 2;
+        return (this.settings['code'])?this.settings['code']:'';        
     }
     save_settings(e=false){
         let el =(e)?$(e.target):false;
         let settings = {
             codes:this.export_table(),
-            send_interval:0
+            send_interval:this.get_email_interval()
         };        
         this.ajax_call('save_settings',{
             settings: settings,           
@@ -409,15 +397,22 @@ class settings_page {
             if (typeof cb ==='function') cb(this.settings);
         });
     }
+    import_settings(){
+        if (this.settings){
+            if (this.settings.codes) this.import_table(this.settings.codes);
+            this.import_email_settings(this.settings);
+        }
+        return this
+    }
     init(){
         this.render_filters();
         $('.content-page').hide();
         for (let i=0;i<=2;i++)  window.app.ws_working(true);
         this.load_settings((settings)=>{
-            $('.content-page').show();
+            $('.content-page').show().css('opacity',1);
             this.init_buttons().init_radio().init_table();
-            for (let i=0;i<=2;i++)  window.app.ws_working(false);
-            if(settings.codes) this.import_table(settings.codes);
+            this.import_settings();
+            for (let i=0;i<=2;i++)  window.app.ws_working(false);            
         });       
     }   
 }

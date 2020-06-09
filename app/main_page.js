@@ -663,7 +663,7 @@ class main_page {
         for (let i=0;i<=2;i++) window.app.ws_working(true);
         setTimeout(() => {
             this.init_buttons().init_emails().init_radio().init_add_email().init_tree().init_table();                
-            $('.content-page').show();
+            $('.content-page').show().css('opacity',1);
             for (let i=0;i<=2;i++)  window.app.ws_working(false);                
         }, 100);
     }   
