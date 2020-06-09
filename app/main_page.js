@@ -20,15 +20,13 @@ class main_page {
         this.extend_data_table().get_cars().get_codes().get_emails();        
     }
     test_stuff(){     
-        this.get_email_interval()
+        console.log(this.get_email_interval())
     }
     get_email_interval(){
-        let attr = $('#inlineRadio1').attr('checked');        
-        let interval = (attr ==='checked')?0:$('#email_interval').val();
-        //if (!interval) interval = 0;
-        console.log(attr);
-        console.log(interval);
-        return interval;
+        let el = $('#email_interval');
+        let val = parseFloat(el.val()) || 0;
+        val = (el.attr('disabled'))?0:val;
+        return val;
     }
     import_email_settings(data){
         if (typeof data['send_interval'] ==='undefined'){
@@ -166,7 +164,7 @@ class main_page {
                 this.ajax_call('save_email',{
                     email: {
                         email:email,
-                        send_interval:0
+                        send_interval:this.settings.send_interval
                     }
                 },response_data =>{
                     $('#email_modal').modal('hide');            
@@ -203,12 +201,13 @@ class main_page {
     save_email(e=false){
         this.email_data[this.email]['codes'] = this.export_table();
         this.email_data[this.email]['vehicles'] = this.export_tree();
+        this.email_data[this.email]['email']['send_interval'] = this.get_email_interval();
         let el =(e)?$(e.target):false;
         
         this.ajax_call('save_email',{
             email: {
                 email:this.email,
-                send_interval:0
+                send_interval:this.get_email_interval(),
             },
             codes: this.email_data[this.email]['codes'],
             vehicles: this.email_data[this.email]['vehicles']
@@ -643,8 +642,22 @@ class main_page {
         });
     }
     default_code_value(code){
-        //console.log(code);
-        return 2;
+        let ret = this.settings.codes[code] || '';
+        return ret;
+    }
+
+    load_settings(cb=false){
+        this.settings = {}
+        this.ajax_call('assets/build/settings.json','',response_data =>{
+            this.settings = response_data;            
+            if (typeof cb ==='function') cb(this.settings);
+        },(err)=>{
+            this.settings = {
+                'codes':{},
+                'send_interval':0
+            }
+            if (typeof cb ==='function') cb(this.settings);
+        });
     }
     init(){        
      
@@ -662,9 +675,13 @@ class main_page {
         $('.content-page').hide();
         for (let i=0;i<=2;i++) window.app.ws_working(true);
         setTimeout(() => {
-            this.init_buttons().init_emails().init_radio().init_add_email().init_tree().init_table();                
-            $('.content-page').show().css('opacity',1);
-            for (let i=0;i<=2;i++)  window.app.ws_working(false);                
+            this.load_settings(()=>{
+                this.init_buttons().init_emails().init_radio().init_add_email().init_tree().init_table();                
+                $('.content-page').show().css('opacity',1);
+                for (let i=0;i<=2;i++)  window.app.ws_working(false);                
+            });
+
+            
         }, 100);
     }   
 }

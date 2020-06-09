@@ -203,14 +203,14 @@ class settings_page {
         });
 
         $('#button_restore').off('click').on('click',(e)=>{
-            this.load_email();
+            this.import_settings();
         });
 
         $('#button_save').off('click').on('click',(e)=>{
             this.save_settings(e);
         });
         $('#button_delete').off('click').on('click',(e)=>{
-            this.delete_email(e);
+            this.clear_table().render_email_settings({send_interval:0})
         });
         $('#button_test').off('click').on('click',(e)=>{
             this.test_stuff();
@@ -399,8 +399,13 @@ class settings_page {
     }
     import_settings(){
         if (this.settings){
-            if (this.settings.codes) this.import_table(this.settings.codes);
-            this.import_email_settings(this.settings);
+            window.app.ws_working(true); 
+            setTimeout(() => {
+                if (this.settings.codes) this.import_table(this.settings.codes);
+                this.import_email_settings(this.settings);    
+                window.app.ws_working(false); 
+            }, 100);
+            
         }
         return this
     }
