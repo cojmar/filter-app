@@ -1,6 +1,24 @@
 <?php
 	class router{
 		//==Routes
+		protected function save_settings(){
+			$json = file_get_contents('php://input');
+			$data = json_decode($json,1);
+			$out = array();						
+			$ok = false;
+			if (!empty($data['settings']) && is_array($data['settings'])){
+				if ( isset($data['settings']['codes'])  && isset($data['settings']['send_interval'])){
+					$settings = array(
+						'codes'=>$data['settings']['codes'],
+						'send_interval'=>$data['settings']['send_interval'],
+					);
+					$ok=true;
+					file_put_contents("assets".DIRECTORY_SEPARATOR."build".DIRECTORY_SEPARATOR."settings.json",json_encode($settings));					
+				}
+			}
+			$out['status']=($ok)?'saved':'invalid data';			
+			json_output($out);
+		}
 		protected function save_email(){
 			$json = file_get_contents('php://input');
 			$data = json_decode($json,1);

@@ -1,17 +1,53 @@
-define(function(require){        
+//define(function(require){        
     class filter_app{
-        constructor(){
+        constructor(){            
             this.settings_key = 'filter_app';
-            this.page_controllers = {};
+            this.modules = {};
             this.views = {};
             this.logged_in = true;                        
             this.working = 0;    
+            this.local_data={};
+            this.base_url = window.location.origin + window.location.pathname;  
+            if(this.base_url.indexOf('.') !==-1){
+                this.base_url = this.base_url.split('/');
+                this.base_url.pop();
+                this.base_url = this.base_url.join('/')+'/';                
+            }
+            $('body').hide();
             this.ajax_call('check_login','',(response_data)=>{
                 if (typeof response_data.login !=='undefined'){
                     if (response_data.login) $('body').show();
+                    this.get_module('main_page',(module)=>{
+                        if (this.init_interval) clearInterval(this.init_interval);
+                        this.init_interval = setInterval(() => {
+                            if(module.check_data_loaded()){
+                                clearInterval(this.init_interval);                        
+                                this.init();
+                            }                    
+                        },100);
+                    });
+                }else{
+                    this.need_login();
                 }
-            })
-            this.init_settings().init_dom().nav();
+            });
+        }
+        data(key,value){
+            if (typeof key ==='undefined'){
+                return this.local_data;
+            }else if (typeof value ==='undefined'){
+                return (typeof this.local_data[key] !=='undefined')?this.local_data[key]:null;
+            }
+            this.local_data[key] = value;
+            return this.local_data[key];            
+        }
+        init(){
+            this.get_module('main_page',(module)=>{                
+                if(module.check_data_loaded()){   
+                    this.data('codes',module.codes);                    
+                    this.init_settings().init_dom().nav();
+                }                    
+                
+            });
         }
         need_login(){
             $('body').hide();
@@ -19,7 +55,7 @@ define(function(require){
                 alert('Login expired');    
             }, 100);    
         }
-        ajax_call(url = false,data = false,cb=false,cb_catch=false){
+        ajax_call(url = false,data = false,cb=false,cb_catch=false,type="json"){
             if (!url) return this;
             this.ws_working(true);
             let opts = {cache: "no-store"};
@@ -32,13 +68,13 @@ define(function(require){
                     if (!response.ok){
                         throw Error(response.statusText);
                     }else{
-                        return response.json()
+                        return (typeof response[type] ==='function')?response[type]():response;
                     }             
                 })
                 .then(response_data =>{                
                     if (typeof cb === 'function') cb(response_data)
                 }).catch(error=>{
-                    if (typeof cb_catch === 'function') cb_catch(response_data);
+                    if (typeof cb_catch === 'function') cb_catch(error);
                     else this.need_login();
                 });
             }, 100);
@@ -49,16 +85,10 @@ define(function(require){
         nav(){
             this.ws_working(true);
             if (!this.page) this.page = 'main';
-            let url_data =window.location.href.split('#');
-            this.base_url = window.location.origin + window.location.pathname;  
-            if(this.base_url.indexOf('.') !==-1){
-                this.base_url = this.base_url.split('/');
-                this.base_url.pop();
-                this.base_url = this.base_url.join('/')+'/';                
-            }
+            let url_data =window.location.href.split('#');     
             this.page = url_data[1] || this.page;            
             if (!this.logged_in) this.page = 'login';
-            this.render();
+            this.show_menu().render();
             this.ws_working(false);
         }
         init_settings(){
@@ -88,7 +118,7 @@ define(function(require){
             return this;
         }    
         show_menu(){
-
+            return this;
         }
         ws_working(is_working=false){
             if (is_working) this.working++;
@@ -100,64 +130,50 @@ define(function(require){
             }
             if (show) $('#loader').show();
             else $('#loader').hide();
-        }
-        
-        get_view(view,done){            
-            if (view){
-                view = view.split('.').join('');
-                view = this.base_url+'views/'+view+'.html';
-            } 
-            if (!this.views) this.views = {};
-            if (typeof this.views[view] !=='undefined'){
-                this.ws_working(false);
-                done(this.views[view]);                
-                return true;
+        }        
+    
+        get_view(view,cb){
+            if (!view) return false;
+            if (typeof cb !=='function') cb = (view)=>{}
+            if (typeof this.views[view]!=='undefined'){
+                return cb(this.views[view])
             }
-            fetch(view)               
-            .then((response_data) => {
-                if(response_data.ok){
-                    return response_data.text();
-                }else{                    
-                    return false;
-                }                    
-            }).then((file_data)=>{
-                this.views[view] = file_data;
-                this.ws_working(false);
-                done(this.views[view]);                
-            });
+            //console.log('loading view',view);
+            this.views[view] = false;
+            let url = this.base_url+'views/'+view.split('.').join('')+'.html';
+            this.ajax_call(url,false,(response_data)=>{
+                this.views[view] = response_data;
+                cb(this.views[view]);                
+            },(error)=>{
+                cb(this.views[view])
+            },'text');
+        }
+
+        get_module(module,cb){
+            if (!module) return false;
+            if (typeof cb !=='function') cb = (module)=>{}
+            if (typeof this.modules[module]!=='undefined'){
+                return cb(this.modules[module])
+            }
+            console.log('loading module',module);
+            this.modules[module] = false;
+            let url = this.base_url+'app/'+module.split('.').join('')+'.js';
+            this.ajax_call(url,false,(response_data)=>{
+                let script = document.createElement("script");
+                script.innerHTML = response_data;
+                document.body.appendChild(script);   
+                try {
+                    eval(`this.modules[module] = new ${module}();`)
+                } catch (error) {
+                    this.modules[module] = false;                    
+                }
+                cb(this.modules[module]);                
+            },(error)=>{
+                cb(this.modules[module])
+            },'text');
         }
         render(){
-            this.ws_working(true);
-            if (typeof this.page_controllers[this.page] ==='undefined'){
-                let controller_js = this.base_url+'app/'+this.page+'_page.js';                
-                fetch(controller_js)               
-                .then((response_data) => {
-                    if(response_data.ok){
-                        return response_data.text();
-                    }else{
-                        this.page_controllers[this.page] = false;
-                        return false;
-                    }                    
-                }).then((file_data)=>{
-                    if (file_data){
-                        let script = document.createElement("script");
-                        script.innerHTML = file_data;
-                        //console.log(controller_js);
-                        document.body.appendChild(script);   
-                        try {
-                            eval(`this.page_controllers[this.page] = new ${this.page}_page();`)
-                        } catch (error) {
-                            this.page_controllers[this.page] = false;
-                        }                        
-                    }       
-                    this.ws_working(false);
-                    this.render();
-                });
-                return true;
-            }
-            let controller = this.page_controllers[this.page];
-            let view_html = this.page+'_page';
-            this.get_view(view_html,(html)=>{
+            this.get_view(this.page+'_page',(html)=>{
                 if(html !== false){
                     document.getElementById('container').innerHTML = html;
                 }else{
@@ -165,15 +181,12 @@ define(function(require){
                         document.getElementById('container').innerHTML = html;
                     });
                 }
-                if (typeof controller === 'object' && typeof controller.init ==='function'){
-                    controller.init();
-                }
-                this.ws_working(false);
+                this.get_module(this.page+'_page',(module)=>{
+                    if (typeof module.init ==='function') module.init();
+                });             
             });
-            
-        }        
+        }
     }
     let app = new filter_app;
     window.app = app;
-    return app;
-});
+    //return app;});
