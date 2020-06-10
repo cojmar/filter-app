@@ -118,6 +118,8 @@
             return this;
         }    
         show_menu(){
+            $('.nav-link').removeClass('nav-pills-active');
+            $(`.nav-link[href="#${this.page}"]`).addClass('nav-pills-active');
             return this;
         }
         ws_working(is_working=false){
