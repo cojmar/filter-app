@@ -1,6 +1,12 @@
 <?php
+	session_start();
 	class router{
 		//==Routes
+		public function test_sara(){
+			$sara = new sara_class();				
+			$data = (!empty($this->url_data[0]))?$this->url_data[0]:false;
+			debug($sara->check_token($data));
+		}
 		protected function save_settings(){
 			$json = file_get_contents('php://input');
 			$data = json_decode($json,1);
@@ -114,6 +120,16 @@
 		function __construct()
 		{
 			set_time_limit(0);
+			if (isset($_GET['SESSION'])){
+				$_SESSION['token'] = $_GET['SESSION'];
+				header('Location: ./');
+				die;
+			}
+			if (isset($_GET['LOGOFF'])){
+				$_SESSION['token'] = false;
+				header('Location: ./');
+				die;
+			}
 			// PROTECTED functions require login
 			// Get url segments try to find a non private function with same name as 1st segment and run it
 			// If not try to lunch default_route()
