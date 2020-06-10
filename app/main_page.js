@@ -16,7 +16,8 @@ class main_page {
         this.email = null;
         this.emails = [];
         this.suggested_emails=[];
-        this.email_data = {};        
+        this.email_data = {};     
+        this.clone_email = false;   
         this.extend_data_table().get_cars().get_codes().get_emails();        
     }
     test_stuff(){     
@@ -161,12 +162,16 @@ class main_page {
     add_email(email){
         this.ajax_call('check_email/'+email,'',response_data =>{
             if(!response_data.status){
-                this.ajax_call('save_email',{
+                let new_email ={
                     email: {
                         email:email,
-                        send_interval:this.settings.send_interval
-                    }
-                },response_data =>{
+                        send_interval:(this.clone_email)?this.get_email_interval():this.settings.send_interval
+                    },
+                    codes:(this.clone_email)?this.export_table():{},
+                    vehicles:(this.clone_email)?this.export_tree():{},
+                }
+                //this.email_data[email] = new_email
+                this.ajax_call('save_email',new_email,response_data =>{
                     $('#email_modal').modal('hide');            
                     this.emails.push(email);
                     let newOption = new Option(email, email, false, false);
@@ -191,7 +196,10 @@ class main_page {
         if(confirm(`Are u sure u want to delete "${this.email}" `)){
             this.ajax_call('delete_email/'+this.email,'',response_data =>{
                 let i = this.emails.indexOf(this.email);
-                if (i!=-1) this.emails.splice(i,1);
+                if (i!=-1){
+                    this.emails.splice(i,1);
+                    delete this.email_data[this.email];
+                } 
                 $('#emails').select2('destroy').html('');
                 this.email = '';
                 this.init_emails(); 
@@ -356,7 +364,7 @@ class main_page {
         });
         emails.select2({
             placeholder: 'Select an email',
-            width: 'calc(100% - 86px)',
+            width: 'calc(100% - 69px)',
             data:this.emails
         });
         emails.val(this.email).trigger('change');
@@ -366,23 +374,34 @@ class main_page {
         const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
     }
-    init_add_email(){
+    show_modal(){
+        let add_email = $('#add_email');   
+        let suggested = this.suggested_emails.reduce((acc,email)=>{
+            if (this.emails.indexOf(email)==-1) acc.push(email); 
+            return acc;
+        },[]);            
+        add_email.select2('destroy').html('').select2({
+            placeholder: 'Add an email',
+            width: '100%',
+            tags: true,
+            dropdownParent:$('#email_modal'),            
+            data:suggested
+        });
+        add_email.val(null).trigger('change');
+        let title = (this.clone_email)?`Save ${this.clone_email} as:`:'New email';
+        $('#exampleModalLabel').html(title);
+        $('#email_modal').modal('show');
+    }
+    init_add_email(){        
         let add_email = $('#add_email');        
         add_email.select2();
         $('#new_email').off('click').on('click',(e)=>{            
-            let suggested = this.suggested_emails.reduce((acc,email)=>{
-                if (this.emails.indexOf(email)==-1) acc.push(email); 
-                return acc;
-            },[]);            
-            add_email.select2('destroy').html('').select2({
-                placeholder: 'Add an email',
-                width: '100%',
-                tags: true,
-                dropdownParent:$('#email_modal'),            
-                data:suggested
-            });
-            add_email.val(null).trigger('change');
-            $('#email_modal').modal('show');
+            this.clone_email = false;
+            this.show_modal();
+        });
+        $('#clone_email').off('click').on('click',(e)=>{            
+            this.clone_email = this.email;
+            this.show_modal();
         });
 
         $('#add_email_btn').off('click').on('click',(e)=>{
@@ -513,7 +532,7 @@ class main_page {
                         img = data;
                     }
 
-                    return '<a href="javascript:" title="' + data + '"><img class="img-thumbnail" style="width:50px;background-color: ' + row['level'] + ';" alt="" loading="lazy" ondragstart="return false;" src="assets/code_img/' + img + '" /></a>';
+                    return '<a href="javascript:" title="' + data + '"><img class="img-thumbnail" style="width:30px;background-color: ' + row['level'] + ';" alt="" loading="lazy" ondragstart="return false;" src="assets/code_img/' + img + '" /></a>';
                 }
             }, {
                 targets: 6,                

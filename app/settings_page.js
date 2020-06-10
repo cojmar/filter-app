@@ -270,7 +270,7 @@ class settings_page {
                         img = data;
                     }
 
-                    return '<a href="javascript:" title="' + data + '"><img class="img-thumbnail" style="width:50px;background-color: ' + row['level'] + ';" alt="" loading="lazy" ondragstart="return false;" src="assets/code_img/' + img + '" /></a>';
+                    return '<a href="javascript:" title="' + data + '"><img class="img-thumbnail" style="width:30px;background-color: ' + row['level'] + ';" alt="" loading="lazy" ondragstart="return false;" src="assets/code_img/' + img + '" /></a>';
                 }
             }, {
                 targets: 5,                
