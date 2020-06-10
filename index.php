@@ -3,9 +3,8 @@
 	class router{
 		//==Routes
 		public function test_sara(){
-			$sara = new sara_class();				
-			$data = (!empty($this->url_data[0]))?$this->url_data[0]:false;
-			debug($sara->check_token($data));
+			$sara = new sara_class();							
+			debug($sara->check_login());
 		}
 		protected function save_settings(){
 			$json = file_get_contents('php://input');
