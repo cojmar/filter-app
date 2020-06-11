@@ -6,6 +6,12 @@
 			$sara = new sara_class();							
 			debug($sara->check_login());
 		}
+		protected function resources(){
+			$res = new resources_class();
+			$out =$res->run($this->url_data);			
+			//debug($out);
+			json_output($out);
+		}
 		protected function save_settings(){
 			$json = file_get_contents('php://input');
 			$data = json_decode($json,1);

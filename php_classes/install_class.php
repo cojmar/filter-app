@@ -39,9 +39,9 @@ class install_class{
                 `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
                 `send_interval` float NOT NULL,
                 PRIMARY KEY (`id`),
-                KEY `email` (`email`),
+                UNIQUE KEY `email` (`email`) USING BTREE,
                 KEY `send_interval` (`send_interval`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;       
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;     
         ";
 
         $sqls[] = "
@@ -60,6 +60,14 @@ class install_class{
                 UNIQUE KEY `email_id` (`email_id`,`description`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
         ";
+        $sqls[] = "
+        CREATE TABLE IF NOT EXISTS `email_actions_log` (
+            `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+            `action` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+            `time_stamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`email`)
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+    ";
 
         foreach ($sqls as $sql){
             $this->db->query($sql);

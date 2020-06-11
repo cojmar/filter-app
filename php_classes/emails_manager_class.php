@@ -3,6 +3,39 @@ class emails_manager_class{
     function __construct(){        
         $this->db = new db_class();
     }
+    function get_updates($time_stamp=false){
+        $time_stamp =empty($time_stamp)?0:$time_stamp;
+        $date = date("Y-m-d H:i:s", $time_stamp);
+        $sql = "
+                SELECT *
+                FROM `email_actions_log`
+                WHERE `time_stamp` >= '{$date}'
+            ";   
+        $db_ret = $this->db->query($sql)->fetchAll();
+        $ret = array(
+            'deleted'=>array(),
+            'changed'=>array()
+        );
+        foreach($db_ret as $item){
+            $key = ($item["action"] === "delete")?"deleted":"changed";            
+            $ret[$key][] = $item['email'];
+        }        
+        return $ret;
+
+    }
+    function log_action($email,$action){
+        $this->db->query("
+            DELETE FROM `email_actions_log`
+            WHERE
+            `time_stamp` < '".date("Y-m-d H:i:s",strtotime("-1 day"))."'
+        ");
+
+        $this->db->array_insert_update(array(
+            "email"=>$email,
+            "action"=>$action,
+            "time_stamp"=>date("Y-m-d H:i:s")
+        ),"email_actions_log");
+    }
     function get_email_data($email){
         if ($email_id = $this->get_email_id($email)){
             $ret = array(
@@ -63,6 +96,7 @@ class emails_manager_class{
                 DELETE FROM `email_vehicles`
                 WHERE `email_id` = {$email_id}
             ");
+            $this->log_action($email,"delete");
             return true;
         }
         return false;
@@ -72,10 +106,47 @@ class emails_manager_class{
         $email_id = false;        
         if (isset($data['email'])){
             if (!empty($data['email']['email'])){
+                $action = "insert";
                 if ($email_id =$this->get_email_id($data['email']['email'])){
+                    $action ="update";
                     $data['email']['id'] = $email_id;
                 }
-                $this->db->array_insert_update($data['email'],"emails");
+                $change = true;
+                if ($action ==='update'){
+                    $change = false;
+                    if ($email_data = $this->get_email_data($data['email']['email'])){
+                        foreach ($email_data as $cat=>$email_cat_data){
+                            if (isset($data[$cat])){
+                                foreach($data[$cat] as $update_key=>$update_val){
+                                    if (!isset($email_cat_data[$update_key])){                                        
+                                        $change = true;
+                                    }elseif ($update_val!=$email_cat_data[$update_key]){
+                                        if (empty($email_cat_data[$update_key]) && empty($update_val)){
+                                            $change = false;
+                                        }
+                                        else{
+                                         //$action = "{$update_key} {$update_val} {$email_cat_data[$update_key]}";
+                                         $change = true;
+                                        }
+                                    }
+                                }
+                                foreach($email_cat_data as $update_key=>$update_val){
+                                    if(!isset($data[$cat][$update_key])){
+                                        $change=true;
+                                        //$action = "{$cat} $update_key";
+                                    }
+                                }
+
+                            }
+                            
+                        }
+                    }
+                }
+                
+                if($change){
+                    $this->db->array_insert_update($data['email'],"emails");
+                    $this->log_action($data['email']['email'],$action);
+                }
                 $email_id =$this->get_email_id($data['email']['email']);
             }
         }
