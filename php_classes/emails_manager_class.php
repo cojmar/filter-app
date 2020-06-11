@@ -40,7 +40,7 @@ class emails_manager_class{
             $db_ret = $this->db->query($sql)->fetchAll();
             $ret['vehicles'] = array();
             foreach($db_ret as $item){
-                $id =($item['type']==='vehicle')?$item['type_id']:"{$item['description']}_{$item['type']}";
+                $id =($item['type']==='vehicle')?$item['description']:"{$item['description']}_{$item['type']}";
                 $ret['vehicles'][] = $id;
             }
 
