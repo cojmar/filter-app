@@ -59,7 +59,10 @@ class resources_class{
         $ret = array('error'=>'invalid email');
         if ($data){            
             if ($email_data = $this->em->get_email_data($data)){
-                $ret = $email_data;
+                $ret = $email_data['email'];
+                $ret['codes'] = $email_data['codes'];
+                $ret['vehicles'] = $email_data['vehicles'];
+                unset($ret['id']);
             }
         }
         return $ret;

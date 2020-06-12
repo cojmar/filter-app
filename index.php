@@ -6,6 +6,10 @@
 			$sara = new sara_class();							
 			debug($sara->check_login());
 		}
+		protected function php_info(){
+			phpinfo();
+			die;
+		}
 		protected function resources(){
 			$res = new resources_class();
 			$out =$res->run($this->url_data);			
