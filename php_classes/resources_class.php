@@ -60,7 +60,7 @@ class resources_class{
         if ($data){            
             if ($email_data = $this->em->get_email_data($data)){
                 $ret = $email_data['email'];
-                $ret['codes'] = $email_data['codes'];
+                $ret['codes'] = (object)$email_data['codes'];
                 $ret['vehicles'] = $email_data['vehicles'];
                 unset($ret['id']);
             }
