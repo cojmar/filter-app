@@ -554,7 +554,7 @@ class main_page {
                 { data: "code", title: "Code"},
                 { data: "type", title: "Typ" },
                 { data: "system", title: "System" },
-                { data: "sel", title: "Nach" },
+                { data: "sel", title: "E-Mail nach (x) aktiven Minuten" },
                 { data: "desc", title: "Beschreibung" }
             ],
 

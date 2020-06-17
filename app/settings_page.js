@@ -261,6 +261,7 @@ class settings_page {
                 targets: 0,
                 data: 1,
                 orderable: false,
+                width:"10px",
                 render: (data, type, row, meta) => {
                     let img = '';
 
@@ -292,7 +293,7 @@ class settings_page {
                 { data: "code", title: "Code"},
                 { data: "type", title: "Type" },
                 { data: "system", title: "System" },
-                { data: "sel", title: "Nach" },
+                { data: "sel", title: "E-Mail nach (x) aktiven Minuten" },
                 { data: "desc", title: "Description" }
             ],                
             data:this.codes,            
