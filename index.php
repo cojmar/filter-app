@@ -6,6 +6,9 @@
 			$sara = new sara_class();							
 			debug($sara->check_login());
 		}
+		protected function update(){
+			return new update_class();
+		}
 		protected function php_info(){
 			phpinfo();
 			die;
