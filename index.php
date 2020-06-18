@@ -6,6 +6,23 @@
 			$sara = new sara_class();							
 			debug($sara->check_login());
 		}
+		protected function cron(){
+			$cron_file = "assets".DIRECTORY_SEPARATOR."build".DIRECTORY_SEPARATOR."cron.json";
+			$cron_data = (file_exists($cron_file))?json_decode(file_get_contents($cron_file),1):array(
+				"status"=>"done"
+			);
+			debug($cron_data);
+			if ($cron_data['status'] =="working"){				
+				return false;	
+			}
+			$cron_data['status'] = "working";			
+			$cron_data['last_date'] = date("Y-m-d H:i:s");
+			file_put_contents($cron_file,json_encode($cron_data));
+			//sleep(10);
+			$this->update();
+			$cron_data['status'] = "done";
+			file_put_contents($cron_file,json_encode($cron_data));
+		}
 		protected function update(){
 			return new update_class();
 		}

@@ -22,7 +22,7 @@ class update_class{
         return json_decode($xml,1);
     }
 
-    private function get_data_failure_list(){
+    private function get_codes_list(){
         $base_path = "http://at-wienerlinien-4.thoreb.com/candy/data-failure/";
         $xml_url = "http://at-wienerlinien-4.thoreb.com/candy/data-failure/DataVersionList.xml";
         if (!$data = $this->read_xml($base_path."DataVersionList.xml")){
@@ -71,16 +71,16 @@ class update_class{
         }
         return($files);
     }
-    private function update_data_failure(){
-        debug('Checking data failure files');
+    private function update_codes(){
+        debug('Checking event/error codes files');
         $ret = false;
-        if($data_failiure_list = $this->get_data_failure_list()){            
+        if($codes_list = $this->get_codes_list()){            
             if ($assets_list = $this->get_assets_list()){
                 foreach($assets_list as $file=>$file_info){
-                    if (isset($data_failiure_list[$file])){
+                    if (isset($codes_list[$file])){
                         $up_to_date = true;
-                        if ($file_info['size'] !=$data_failiure_list[$file]['size']) $up_to_date = false;
-                        if ($file_info['checksum'] !=$data_failiure_list[$file]['checksum']) $up_to_date = false;
+                        if ($file_info['size'] !=$codes_list[$file]['size']) $up_to_date = false;
+                        if ($file_info['checksum'] !=$codes_list[$file]['checksum']) $up_to_date = false;
                         $msg = ($up_to_date)?'ok':'updated';
                         if (empty($up_to_date)){
                             $ret = true;
@@ -88,9 +88,9 @@ class update_class{
                             debug('current version');
                             debug($file_info);
                             debug('server version');
-                            debug($data_failiure_list[$file]);
+                            debug($codes_list[$file]);
                             */
-                            $file_data = file_get_contents($data_failiure_list[$file]['location']);
+                            $file_data = file_get_contents($codes_list[$file]['location']);
                             $out_file = $file_info['location'];
                             $write = @file_put_contents($out_file,$file_data);
                             if($write ===false){
@@ -105,25 +105,55 @@ class update_class{
                 debug("Failed to get assets_list");
             }
         }else{
-            debug("Failed to get data_failiure_list");
+            debug("Failed to get codes_list");
         }
         return $ret;
     }
-    private function update_data_events(){
-        $path = "http://127.0.0.1:8080/candy-data-web/services/vehicleList/json";
-        
-        $data = file_get_contents($path);
-        debug($data);
-
+    private function update_vehicles(){
+        debug('Checking vehicles');
+        $change = false;
+        $local_file = str_replace("/",DIRECTORY_SEPARATOR,"assets/import/json.json");
+        $external_data = file_get_contents("http://datanisse:GURKmajonas@at-wienerlinien.thoreb.com:8080/candy-data-web/services/vehicleList/json");
+        $external_file_info = array(
+            'size'=>strlen($external_data),
+            'checksum'=>md5($external_data)
+        );
+        $local_data = file_get_contents($local_file);
+        $local_file_info = array(
+            'size'=>strlen($local_data),
+            'checksum'=>md5($local_data)
+        );
+        $unchanged = ($external_file_info === $local_file_info);
+        $msg = "{$local_file} - ok";
+        if(!$unchanged){
+            $write = @file_put_contents($local_file,$external_data);
+            $msg = "{$local_file} - updated";
+            if($write ===false){
+                $msg = 'failed to write file: '.$local_file;                                
+            }else{
+                $change = true;
+            }
+        }
+        debug($msg);
+        return $change;
     }
 
     private function check_updates(){
         $update_done = false;
-        if ($this->update_data_failure()){
+        if ($this->update_codes()){
             $update_done = true;
             debug('data failure updated');
         }
-        $this->update_data_events();
-        
+        if ($this->update_vehicles()){
+            $update_done = true;
+            debug('data failure updated');
+        }
+        if ($update_done){
+            $importer = new import_class();
+            debug('Importing data from files to db!');
+            $importer->import();
+        }else{
+            debug('Nothing to update, all data is up to date!');
+        }
     }
 }
