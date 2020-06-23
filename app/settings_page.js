@@ -76,11 +76,11 @@ class settings_page {
                 decimal: ',',
                 thousands: '.',
                 emptyTable: 'No data available',
-                info: '_START_ - _END_ from _TOTAL_',
-                infoEmpty: '0 - 0 from 0',
-                infoFiltered: '(filter from _MAX_ total)',
+                info: '_START_ - _END_ von  _TOTAL_',
+                infoEmpty: '0 - 0 von  0',
+                infoFiltered: '(gefiltert aus _MAX_ Einträgen)',
                 infoPostFix: '',
-                lengthMenu: '_MENU_ on page',
+                lengthMenu: '_MENU_ pro Seite',
                 loadingRecords: 'Loading…',
                 processing: 'Processing…',
                 search: 'Suche',
@@ -94,9 +94,9 @@ class settings_page {
                 },
                 select: {
                     rows: {
-                        _: '(%d selected)',
-                        0: '(0 selected)',
-                        1: '(1 selected)'
+                        _: '(%d ausgewählt)',
+                        0: '(0 ausgewählt)',
+                        1: '(1 ausgewählt)'
                     }
                 },
                 buttons: {
@@ -261,6 +261,7 @@ class settings_page {
                 targets: 0,
                 data: 1,
                 orderable: false,
+                width:"10px",
                 render: (data, type, row, meta) => {
                     let img = '';
 
@@ -292,7 +293,7 @@ class settings_page {
                 { data: "code", title: "Code"},
                 { data: "type", title: "Type" },
                 { data: "system", title: "System" },
-                { data: "sel", title: "Nach" },
+                { data: "sel", title: "E-Mail nach (x) aktiven Minuten" },
                 { data: "desc", title: "Description" }
             ],                
             data:this.codes,            
