@@ -36,7 +36,66 @@ class emails_manager_class{
             "time_stamp"=>date("Y-m-d H:i:s")
         ),"email_actions_log");
     }
-    function get_email_data($email){
+
+    function get_tree_structure(){
+        if (!empty($this->cache_structure)) return $this->cache_structure;
+        $sql = "
+            SELECT 
+                DISTINCT(`v`.`localAreaManagement`) AS `local_area`,
+                `v`.`regionalManagement` AS `region`,
+                `v`.`areaManagement` AS `area`    
+            FROM `filter_app`.`vehicles` AS `v`
+            GROUP BY(v.localAreaManagement)
+        ";
+        $data = $this->db->query($sql)->fetchAll();
+        $struct = array(
+            'area'=>array(),
+            'local_area'=>array()
+        );
+        foreach($data as $item){            
+            $struct['area'][ $item['area'] ] = array('region'=>$item['region']);
+            $struct['local_area'][$item['local_area']] = array('region'=>$item['region'],'area'=>$item['area']);            
+        }
+
+        $this->cache_structure = $struct;
+        return $struct;
+
+    }
+
+    function nested_vehicles($vehicles){
+        $ret = array();
+        $struct = $this->get_tree_structure();
+        //return $struct;
+        foreach ($vehicles as $item){
+            switch($item['type']){
+                default:
+                    if (!isset($ret[$item['region']])) $ret[$item['region']] = array();
+                    if (!isset($ret[$item['region']][$item['area']])) $ret[$item['region']][$item['area']] = array();
+                    if (!isset($ret[$item['region']][$item['area']][$item['local_area']])) $ret[$item['region']][$item['area']][$item['local_area']] = array();
+                    $ret[$item['region']][$item['area']][$item['local_area']][] = $item['description'];
+                break;
+                case 'region':
+                    if (!isset($ret[$item['description']])) $ret[$item['description']] = array();
+                break;
+                case 'area':
+                    $item = array_merge($item,$struct['area'][$item['description']]);                    
+                    if (!isset($ret[$item['region']])) $ret[$item['region']] = array();
+                    if (!isset($ret[$item['region']][$item['description']]))  $ret[$item['region']][$item['description']] = array();
+                break;
+                case 'local_area':
+                    $item = array_merge($item,$struct['local_area'][$item['description']]);
+                    if (!isset($ret[$item['region']])) $ret[$item['region']] = array();
+                    if (!isset($ret[$item['region']][$item['area']])) $ret[$item['region']][$item['area']] = array();
+                    if (!isset($ret[$item['region']][$item['area']][$item['description']])) $ret[$item['region']][$item['area']][$item['description']] = array();                    
+                break;
+            }
+        }
+        //$ret = $vehicles;
+        
+        return $ret;
+    }
+
+    function get_email_data($email,$format_for_front=true){
         if ($email_id = $this->get_email_id($email)){
             $ret = array(
                 "email"=>array(),
@@ -65,18 +124,27 @@ class emails_manager_class{
             }
 
             $sql = "
-                SELECT `description`,`type`
-                FROM `email_vehicles`
-                WHERE `email_id` = {$email_id}
+                SELECT 
+                    `ev`.*,
+                    `v`.`regionalManagement` AS `region`,
+                    `v`.`areaManagement` AS `area`,
+                    `v`.`localAreaManagement` AS `local_area`
+                FROM `filter_app`.`email_vehicles` AS `ev`
+                LEFT JOIN `filter_app`.`vehicles` AS `v` on `ev`.`description` = `v`.`id`
+                WHERE `ev`.`email_id` = {$email_id}
             ";   
 
             $db_ret = $this->db->query($sql)->fetchAll();
             $ret['vehicles'] = array();
             foreach($db_ret as $item){
-                $id =($item['type']==='vehicle')?$item['description']:"{$item['description']}_{$item['type']}";
-                $ret['vehicles'][] = $id;
+                if ($format_for_front){
+                    $id =($item['type']==='vehicle')?$item['description']:"{$item['description']}_{$item['type']}";
+                    $ret['vehicles'][] = $id;
+                }else{
+                    $ret['vehicles'][] = $item;
+                }
             }
-
+            if (!$format_for_front) $ret['vehicles'] = $this->nested_vehicles($ret['vehicles']);
             return $ret;
         }
         return false;

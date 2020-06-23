@@ -58,12 +58,18 @@ class resources_class{
         $data = (!empty($this->segments[0]))?$this->segments[0]:false;
         $ret = array('error'=>'invalid email');
         if ($data){            
-            if ($email_data = $this->em->get_email_data($data)){
+            if ($email_data = $this->em->get_email_data($data,false)){
                 $ret = $email_data['email'];
                 $ret['codes'] = (object)$email_data['codes'];
                 $ret['vehicles'] = $email_data['vehicles'];
                 unset($ret['id']);
             }
+        }
+        foreach($ret['vehicles'] as &$region){
+            foreach($region as &$area){                
+                $area = (object)$area;
+            }
+            $region = (object)$region;
         }
         return $ret;
     }
