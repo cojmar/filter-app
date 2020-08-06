@@ -14,7 +14,7 @@ class sara_class{
         return (!empty($response))?true:false;
     }
     function check_login(){
-        return true;
+        //return true;
         $token = (!empty($_SESSION['token']))?$_SESSION['token']:false;
         return $this->check_token($token);
     }
