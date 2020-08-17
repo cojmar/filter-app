@@ -661,7 +661,8 @@ class main_page {
         });
     }
     default_code_value(code){
-        let ret = this.settings.codes[code] || '';
+        //console.log(code);
+        let ret = this.settings.codes[code] || this.settings.default_natch;
         return ret;
     }
 

@@ -46,6 +46,7 @@
 					$settings = array(
 						'codes'=>$data['settings']['codes'],
 						'send_interval'=>$data['settings']['send_interval'],
+						'default_natch'=>$data['settings']['default_natch']
 					);
 					$ok=true;
 					file_put_contents("assets".DIRECTORY_SEPARATOR."build".DIRECTORY_SEPARATOR."settings.json",json_encode($settings));

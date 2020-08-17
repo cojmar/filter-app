@@ -1,23 +1,23 @@
 class settings_page {
     constructor(){
         this.data_loaded={
-          
+
         }
         this.filters = {
             level:'all',
             system:'all',
             type:'all'
-        }                
+        }
         this.codes =window.app.data('codes');
         this.data_table = false;
         this.cars = false;
         this.email = null;
         this.emails = [];
         this.suggested_emails=[];
-        this.email_data = {};        
-        this.extend_data_table();        
+        this.email_data = {};
+        this.extend_data_table();
     }
-    test_stuff(){     
+    test_stuff(){
         console.log(this.get_email_interval())
     }
     get_email_interval(){
@@ -29,7 +29,7 @@ class settings_page {
     import_email_settings(data){
         if (typeof data['send_interval'] ==='undefined'){
             data['send_interval'] = 0;
-        }        
+        }
         this.render_email_settings(data);
     }
     render_email_settings(data){
@@ -37,7 +37,7 @@ class settings_page {
         $('#inlineRadio2').removeAttr('checked');
         $('#email_interval').val('');
         $('#email_interval').attr('disabled','disabled');
-        
+
         if (parseFloat(data['send_interval']) === 0){
             $('#inlineRadio1').attr('checked', 'checked');
         }else{
@@ -45,29 +45,29 @@ class settings_page {
             $('#email_interval').val(data['send_interval']);
             $('#email_interval').removeAttr('disabled');
         }
-    }    
+    }
     ajax_call(url = false,data = false,cb=false,cb_catch=false){
         window.app.ajax_call(url,data,cb,cb_catch);
         return this;
-    }   
+    }
     check_data_loaded(){
         for (let data_type in this.data_loaded){
-            if (!this.data_loaded[data_type]){                
+            if (!this.data_loaded[data_type]){
                 return false;
             }
         }
         return true;
-    }   
+    }
     set_filter(filter,value){
-        this.filters[filter] = value;        
+        this.filters[filter] = value;
         this.render_filters().filter_table();
     }
     filter_table(){
-        if (!this.data_table) return this;              
-        window.app.ws_working(true);    
+        if (!this.data_table) return this;
+        window.app.ws_working(true);
         setTimeout(() => {
-            this.data_table.draw();            
-        },100);        
+            this.data_table.draw();
+        },100);
         return this;
     }
     extend_data_table(){
@@ -162,43 +162,43 @@ class settings_page {
         };
 
         $.fn.dataTable.ext.search.push(
-            ( settings, data, dataIndex )=> {                
-                if (!this.data_table) return true;  
+            ( settings, data, dataIndex )=> {
+                if (!this.data_table) return true;
                 if (Object.values(this.filters).every((val, i, arr) => val === arr[0])) return true;
-                 
+
 
                 let row_data = this.data_table.rows( dataIndex ).data().toArray()[0];
-                
+
                 for(let filter in this.filters){
                     if (this.filters[filter] !=='all' && row_data[filter] !==this.filters[filter]){
                         return false;
                     }
                 }
-                return true;                        
+                return true;
             }
         );
         return this;
-    }  
+    }
     init_radio(){
         $('#inlineRadio1').off('click').on('click',(e)=>{
-            $('#email_interval').attr('disabled','disabled');            
+            $('#email_interval').attr('disabled','disabled');
         });
         $('#inlineRadio2').off('click').on('click',(e)=>{
             $('#email_interval').removeAttr('disabled');
-        });        
+        });
         return this;
-    }    
+    }
     init_buttons(){
         $(".nav-tabs a").off('click').on('click',(e)=>{
-            e.preventDefault();            
+            e.preventDefault();
             this.set_filter('level',e.target.hash.substr(1));
         });
 
-        $('.system_filter').off('click').on('click',(e)=>{            
+        $('.system_filter').off('click').on('click',(e)=>{
             this.set_filter('system',$(e.target).data('value'));
         });
 
-        $('.type_filter').off('click').on('click',(e)=>{            
+        $('.type_filter').off('click').on('click',(e)=>{
             this.set_filter('type',$(e.target).data('value'));
         });
 
@@ -215,15 +215,15 @@ class settings_page {
         $('#button_test').off('click').on('click',(e)=>{
             this.test_stuff();
         });
-        
-        
 
-       
+
+
+
         $('[data-toggle="popover"]').on('click',(e)=>{
             let el = $(e.target);
             el.popover({
                 'content': el.data('popover'),
-                'html': true,                
+                'html': true,
                 'placement': 'top'
             }).popover('show');
             setTimeout(() => {
@@ -231,7 +231,7 @@ class settings_page {
             }, 500);
         });
 
-        
+
 
         return this;
     }
@@ -244,10 +244,10 @@ class settings_page {
 
         $('.nav-tabs a[href="#'+this.filters.level+'"]').tab('show');
         return this;
-    }    
+    }
     init_table(){
         $('#table_container').html(`
-            <table id="data_table" class="display" style="width: 100%;"></table>            
+            <table id="data_table" class="display" style="width: 100%;"></table>
         `);
 
         this.data_table = $('#data_table').DataTable({
@@ -274,62 +274,62 @@ class settings_page {
                     return '<a href="javascript:" title="' + data + '"><img class="img-thumbnail" style="width:30px;background-color: ' + row['level'] + ';" alt="" loading="lazy" ondragstart="return false;" src="assets/code_img/' + img + '" /></a>';
                 }
             }, {
-                targets: 5,                
+                targets: 5,
                 render: (data, type, row, meta) =>{
                     return $.fn.dataTable.render.ellipsis(50, true)(data, type, row);
                 }
             },{
                 targets:4,
                 orderable: false,
-                render:(data, type, row, meta)=>{                    
+                render:(data, type, row, meta)=>{
                     return `
                         <input type="text" value="" style="width:50px;" data-code="${row['code']}">
                     `;
                 }
             }],
             columns: [
-                
+
                 { data: "icon", title: "Icon" },
                 { data: "code", title: "Code"},
                 { data: "type", title: "Type" },
                 { data: "system", title: "System" },
                 { data: "sel", title: "E-Mail nach (x) aktiven Minuten" },
                 { data: "desc", title: "Description" }
-            ],                
-            data:this.codes,            
+            ],
+            data:this.codes,
             order: [
                 [2, 'asc']
             ],
-            drawCallback:()=>{                
+            drawCallback:()=>{
                 setTimeout(() => {
-                    window.app.ws_working(false);    
                     window.app.ws_working(false);
-                },100);                
-                
+                    window.app.ws_working(false);
+                },100);
+
             },
-            preDrawCallback:()=>{                
+            preDrawCallback:()=>{
                 setTimeout(() => {
-                    window.app.ws_working(true);    
-                });                
-                
+                    window.app.ws_working(true);
+                });
+
             }
         });
-        
+
         return this;
     }
-    export_table(){        
-        let data = {};        
+    export_table(){
+        let data = {};
         let nodes = $(this.data_table.rows().nodes());
-        nodes.find('input[type="text"]').each(function(i, el) {            
-            data[$(el).data('code')] = $(el).val();   
+        nodes.find('input[type="text"]').each(function(i, el) {
+            data[$(el).data('code')] = $(el).val();
         });
-        return data;        
+        return data;
     }
-    clear_table(){ 
+    clear_table(){
         this.data_table.rows().nodes().to$().find('input[type="text"]').val('');
-        return this        
+        return this
     }
-    import_table(data){        
+    import_table(data){
         this.clear_table();
         let obj_keys = Object.keys(data);
         let select_rows = [];
@@ -337,18 +337,18 @@ class settings_page {
         this.data_table.column(1).data().each((value, index) => {
             if (obj_keys.includes(value)) {
                 select_rows.push(index_map[index]);
-                let row = this.data_table.row(index_map[index]);                
+                let row = this.data_table.row(index_map[index]);
                 $(row.node()).find('input[type="text"]').first().val(data[value]);
             }
         });
         //console.log(select_rows);
         window.app.ws_working(false);
     }
-    selection_default_code_value(){        
+    selection_default_code_value(){
         this.data_table.rows({
             selected: true
         }).data().each((value, index)=>{
-            let row = this.data_table.row(index);        
+            let row = this.data_table.row(index);
             let el = $(row.node()).find('input[type="text"]').first();
             if (el.val() ===''){
                 let def_val = this.default_code_value(row.data()['code']);
@@ -357,21 +357,22 @@ class settings_page {
         });
     }
     default_code_value(code){
-        return (this.settings['code'])?this.settings['code']:'';        
+        return (this.settings['code'])?this.settings['code']:'';
     }
     save_settings(e=false){
         let el =(e)?$(e.target):false;
         let settings = {
             codes:this.export_table(),
-            send_interval:this.get_email_interval()
-        };        
+            send_interval:this.get_email_interval(),
+            default_natch:$('#default_natch').val()
+        };
         this.ajax_call('save_settings',{
-            settings: settings,           
+            settings: settings,
         },response_data =>{
             if (el){
                 el.popover({
                     'content': response_data.status,
-                    'html': true,                
+                    'html': true,
                     'placement': 'top'
                 }).popover('show');
                 setTimeout(() => {
@@ -388,25 +389,26 @@ class settings_page {
     load_settings(cb=false){
         this.settings = {}
         this.ajax_call('assets/build/settings.json','',response_data =>{
-            this.settings = response_data;            
+            this.settings = response_data;
             if (typeof cb ==='function') cb(this.settings);
         },(err)=>{
             this.settings = {
                 'codes':{},
-                'send_interval':0
+                'send_interval':0,
+                'default_natch':''
             }
             if (typeof cb ==='function') cb(this.settings);
         });
     }
     import_settings(){
         if (this.settings){
-            window.app.ws_working(true); 
+            window.app.ws_working(true);
             setTimeout(() => {
                 if (this.settings.codes) this.import_table(this.settings.codes);
-                this.import_email_settings(this.settings);    
-                window.app.ws_working(false); 
+                this.import_email_settings(this.settings);
+                window.app.ws_working(false);
             }, 100);
-            
+
         }
         return this
     }
@@ -415,10 +417,11 @@ class settings_page {
         $('.content-page').hide();
         for (let i=0;i<=2;i++)  window.app.ws_working(true);
         this.load_settings((settings)=>{
+            if (settings.default_natch) $('#default_natch').val(settings.default_natch);
             $('.content-page').show().css('opacity',1);
             this.init_buttons().init_radio().init_table();
             this.import_settings();
-            for (let i=0;i<=2;i++)  window.app.ws_working(false);            
-        });       
-    }   
+            for (let i=0;i<=2;i++)  window.app.ws_working(false);
+        });
+    }
 }
