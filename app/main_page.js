@@ -10,6 +10,8 @@ class main_page {
             system:'all',
             type:'all'
         }
+        this.search_val = '';
+        this.last_search_val = false;
         this.codes =false;
         this.data_table = false;
         this.cars = false;
@@ -19,6 +21,7 @@ class main_page {
         this.email_data = {};
         this.clone_email = false;
         this.extend_data_table().get_cars().get_codes().get_emails();
+        window.main = this;
     }
     test_stuff(){
         console.log(this.get_email_interval())
@@ -585,10 +588,7 @@ class main_page {
             if ($("th.select-checkbox").hasClass("selected")) {
                 this.clear_table(true);
             } else {
-                this.data_table.rows().select();
-                this.data_table.rows().nodes().to$().find('input[type="text"]').removeAttr('disabled');
-                $("th.select-checkbox").addClass("selected");
-                this.selection_default_code_value();
+                this.check_table();
             }
         }).on("select", (e, dt, type, indexes)=> {
             if (typeof indexes !=='undefined'){
@@ -609,7 +609,37 @@ class main_page {
             }
             this.data_table.rows(indexes).nodes().to$().find('input[type="text"]').first().val('').attr('disabled', '');
         });
+        $('input[type="search"]').on('keyup',(e)=>{
+            this.search_val = $(e.target).val();
+            let searched_rows_count = this.data_table.rows({ search: 'applied' }).count();
+            let selected_rows_count = this.data_table.rows({ selected: true }).count();
+            if (this.last_search_val === this.search_val && searched_rows_count === selected_rows_count){
+                if (!$("th.select-checkbox").hasClass("selected")) {
+                    $("th.select-checkbox").addClass("selected");
+                }
+            }else{
+                if ($("th.select-checkbox").hasClass("selected")) {
+                    $("th.select-checkbox").removeClass("selected");
+                }
+            }
+        });
         return this;
+    }
+    check_table(){
+        this.clear_table();
+        this.last_search_val = this.search_val
+        let rows = this.data_table.rows({ search: 'applied' });
+        let nodes = rows.nodes().to$()
+        //nodes.find('input[type="text"]').removeAttr('disabled');
+        nodes.find('input[type="text"]').each((i, el)=>{
+            el = $(el);
+            let val = el.val();
+            let code = el.data('code');
+            el.removeAttr('disabled');
+            if (!val) el.val(this.default_code_value(code))
+        });
+        $("th.select-checkbox").addClass("selected");
+        rows.select();
     }
     export_table(){
         let data = {};
@@ -647,18 +677,6 @@ class main_page {
             $("th.select-checkbox").addClass("selected");
         }
         window.app.ws_working(false);
-    }
-    selection_default_code_value(){
-        this.data_table.rows({
-            selected: true
-        }).data().each((value, index)=>{
-            let row = this.data_table.row(index);
-            let el = $(row.node()).find('input[type="text"]').first();
-            if (el.val() ===''){
-                let def_val = this.default_code_value(row.data()['code']);
-                el.val(def_val);
-            }
-        });
     }
     default_code_value(code){
         //console.log(code);
