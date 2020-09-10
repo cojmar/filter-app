@@ -12,6 +12,7 @@ class main_page {
         }
         this.search_val = '';
         this.last_search_val = false;
+        this.last_search_filters = ''
         this.codes =false;
         this.data_table = false;
         this.cars = false;
@@ -240,13 +241,14 @@ class main_page {
     }
     set_filter(filter,value){
         this.filters[filter] = value;
-        this.render_filters().filter_table();
+        this.render_filters().filter_table()
     }
     filter_table(){
         if (!this.data_table) return this;
         window.app.ws_working(true);
         setTimeout(() => {
-            this.data_table.draw();
+            this.data_table.draw()
+            this.render_check_all()
         },100);
         return this;
     }
@@ -611,23 +613,35 @@ class main_page {
         });
         $('input[type="search"]').on('keyup',(e)=>{
             this.search_val = $(e.target).val();
-            let searched_rows_count = this.data_table.rows({ search: 'applied' }).count();
-            let selected_rows_count = this.data_table.rows({ selected: true }).count();
-            if (this.last_search_val === this.search_val && searched_rows_count === selected_rows_count){
-                if (!$("th.select-checkbox").hasClass("selected")) {
-                    $("th.select-checkbox").addClass("selected");
-                }
-            }else{
-                if ($("th.select-checkbox").hasClass("selected")) {
-                    $("th.select-checkbox").removeClass("selected");
-                }
-            }
+            this.render_check_all();
         });
         return this;
+    }
+    render_check_all(){
+        let searched_rows_count = this.data_table.rows({ search: 'applied' }).count();
+        let selected_rows_count = this.data_table.rows({ selected: true }).count();
+        let selected_filters = JSON.stringify(this.filters);
+
+        if (
+            this.last_search_val === this.search_val
+            && searched_rows_count === selected_rows_count
+            && this.last_search_filters === selected_filters
+
+            ){
+            if (!$("th.select-checkbox").hasClass("selected")) {
+                $("th.select-checkbox").addClass("selected");
+            }
+        }else{
+            if ($("th.select-checkbox").hasClass("selected")) {
+                $("th.select-checkbox").removeClass("selected");
+            }
+        }
+        return this
     }
     check_table(){
         this.clear_table();
         this.last_search_val = this.search_val
+        this.last_search_filters = JSON.stringify(this.filters)
         let rows = this.data_table.rows({ search: 'applied' });
         let nodes = rows.nodes().to$()
         //nodes.find('input[type="text"]').removeAttr('disabled');
