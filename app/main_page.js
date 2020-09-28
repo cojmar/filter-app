@@ -619,13 +619,13 @@ class main_page {
     }
     render_check_all(){
         let searched_rows_count = this.data_table.rows({ search: 'applied' }).count();
-        let selected_rows_count = this.data_table.rows({ selected: true }).count();
+        let selected_rows_count = this.data_table.rows({ selected: true,search: 'applied' }).count();
         let selected_filters = JSON.stringify(this.filters);
 
         if (
-            this.last_search_val === this.search_val
-            && searched_rows_count === selected_rows_count
-            && this.last_search_filters === selected_filters
+            //this.last_search_val === this.search_val
+            searched_rows_count === selected_rows_count
+            //&& this.last_search_filters === selected_filters
 
             ){
             if (!$("th.select-checkbox").hasClass("selected")) {
@@ -639,7 +639,7 @@ class main_page {
         return this
     }
     check_table(){
-        this.clear_table();
+        this.clear_table(true);
         this.last_search_val = this.search_val
         this.last_search_filters = JSON.stringify(this.filters)
         let rows = this.data_table.rows({ search: 'applied' });
@@ -663,12 +663,18 @@ class main_page {
         });
         return data;
     }
-    clear_table(clear_values = false){
+    clear_table(only_selection = false){
         if ($("th.select-checkbox").hasClass("selected")) {
             $("th.select-checkbox").removeClass("selected");
         }
-        this.data_table.rows({ selected: true }).deselect();
-        this.data_table.rows().nodes().to$().find('input[type="text"]').val('').attr('disabled', '');
+        if (only_selection){
+            let rows = this.data_table.rows({ search: 'applied', selected: true});
+            rows.deselect();
+            rows.nodes().to$().find('input[type="text"]').val('').attr('disabled', '');
+        }else{
+            this.data_table.rows({ selected: true }).deselect();
+            this.data_table.rows().nodes().to$().find('input[type="text"]').val('').attr('disabled', '');
+        }
         return this
     }
     import_table(data){
