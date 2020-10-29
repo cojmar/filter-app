@@ -2,7 +2,7 @@
     <div class="col-sm-3 sub-menu">
         <div class="form-group" style="margin-top: 2px;">
             <select id="emails"></select>
-            <button id="new_email" type="button" class="btn btn-success float-right btn-sm">Neue E-Mail</button>   
+            <button id="new_email" type="button" class="btn btn-success float-right btn-sm">Neue E-Mail</button>
         </div>
         <p></p>
         <div id="tree" class="only_when_email_selected"></div>
@@ -11,17 +11,18 @@
     <div class="col-sm-9 only_when_email_selected">
         <p></p>
         <div class="card" style="height: 30px;">
-            <h5 class="card-title text-muted text-center">E-Mail Einstellungen</h5>        
-        </div>   
+            <h5 class="card-title text-muted text-center">E-Mail Einstellungen</h5>
+        </div>
         <p></p>
-        <div class="float-right" style="margin-right: 2px;">   
+        <div class="float-right" style="margin-right: 2px;">
             <button id="clone_email" type="button" class="btn btn-primary">
                 <i class="fas fa-copy"></i> Speichern als
             </button>
             <button id="button_delete" type="button" class="btn btn-danger">
                 <i class="fas fa-trash"></i> Löschen
             </button>
-            <button id="button_restore" type="button" class="btn btn-warning" data-toggle="popover" data-popover="Restore done">
+            <button id="button_restore" type="button" class="btn btn-warning" data-toggle="popover"
+                data-popover="Restore done">
                 <i class="fas fa-redo"></i> Zurücksetzen
             </button>
             <button id="button_save" type="button" class="btn btn-success" data-popover="Save done">
@@ -29,29 +30,32 @@
             </button>
         </div>
         <div class="form-inline">
-                         
+
             <span style="margin-top: -1px;">E-Mail Benachrichtigung durch: &nbsp;</span>
-            
-           
+
+
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
-                <label class="form-check-label" for="inlineRadio2">Sammelmail um </label>
+                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2"
+                    value="option2">
+                <label class="form-check-label" for="inlineRadio2">Sammelmail alle </label>
             </div>
-            <div class="input-group input-group-sm">                
-                <input id ="email_interval" type="text" class="form-control" style="width:30px;"> <span style="margin-top: 4px;">&nbsp;Uhr&nbsp;&nbsp;&nbsp;</span>
+            <div class="input-group input-group-sm">
+                <input id="email_interval" type="text" class="form-control" style="width:30px;"> <span
+                    style="margin-top: 4px;">&nbsp;Stunden&nbsp;&nbsp;&nbsp;</span>
             </div>
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1"
+                    value="option1">
                 <label class="form-check-label" for="inlineRadio1">einzelne E-Mails</label>
             </div>
         </div>
         <p></p>
-   
+
 
         <p></p>
         <div class="card" style="height: 30px;">
-            <h5 class="card-title text-muted text-center">Event Codes</h5>        
-        </div>   
+            <h5 class="card-title text-muted text-center">Event Codes</h5>
+        </div>
 
         <p></p>
         Steuergerät auswählen
@@ -64,18 +68,18 @@
         <button type="button" class="type_filter btn btn-primary" data-value="all">Alle</button>
         <button type="button" class="type_filter btn btn-secondary" data-value="event">Ereignisse</button>
         <button type="button" class="type_filter btn btn-secondary" data-value="failure">Fehler</button>
-        
+
         <p></p>
 
         <ul class="nav nav-tabs">
             <li class="nav-item">
-            <a class="nav-link active" href="#all">Alle</a>
+                <a class="nav-link active" href="#all">Alle</a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="#red">Rot</a>
+                <a class="nav-link" href="#red">Rot</a>
             </li>
             <li class="nav-item">
-            <a class="nav-link" href="#yellow">Gelb</a>
+                <a class="nav-link" href="#yellow">Gelb</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#grey">Grau</a>
@@ -83,29 +87,30 @@
         </ul>
         <p></p>
         <div id="table_container">
-            
+
         </div>
     </div>
 </div>
 
 
 
-<div class="modal fade" id="email_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="email_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
     <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Neue E-Mail</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Neue E-Mail</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <select id="add_email"></select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
+                <button id="add_email_btn" type="button" class="btn btn-primary">Add</button>
+            </div>
         </div>
-        <div class="modal-body">
-            <select id="add_email"></select>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Abbrechen</button>
-          <button id="add_email_btn" type="button" class="btn btn-primary">Add</button>
-        </div>
-      </div>
     </div>
-  </div>
+</div>
