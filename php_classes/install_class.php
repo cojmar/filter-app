@@ -1,13 +1,17 @@
 <?php
-class install_class{
-    function __construct(){     
+class install_class
+{
+    function __construct()
+    {
         $this->db = new db_class();
     }
-    function install(){
+    function install()
+    {
         $this->install_db();
     }
-    function install_db(){
-        $sqls = array();       
+    function install_db()
+    {
+        $sqls = array();
         $sqls[] = "
             CREATE TABLE IF NOT EXISTS `vehicles` (
                 `id` bigint(21) NOT NULL,
@@ -38,10 +42,12 @@ class install_class{
                 `id` bigint(21) NOT NULL AUTO_INCREMENT,
                 `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
                 `send_interval` float NOT NULL,
+                `active` int(1) NOT NULL DEFAULT '1',
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `email` (`email`) USING BTREE,
-                KEY `send_interval` (`send_interval`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;     
+                KEY `send_interval` (`send_interval`),
+                KEY `active` (`active`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci; 
         ";
 
         $sqls[] = "
@@ -69,7 +75,7 @@ class install_class{
           ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
     ";
 
-        foreach ($sqls as $sql){
+        foreach ($sqls as $sql) {
             $this->db->query($sql);
         }
         return $this;

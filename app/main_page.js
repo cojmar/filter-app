@@ -33,8 +33,8 @@ class main_page {
 		val = (el.attr('disabled')) ? 0 : val;
 		return val;
 	}
-	get_email_test() {
-		let el = $('#email_test');
+	get_email_active() {
+		let el = $('#email_active');
 		let val = el.is(":checked") ? '1' : '0'
 		return val;
 	}
@@ -58,7 +58,7 @@ class main_page {
 			$('#email_interval').removeAttr('disabled');
 		}
 
-		$('#email_test').prop("checked", data.test === '1' ? true : false);
+		$('#email_active').prop("checked", data.active === '1' ? true : false);
 	}
 	import_tree(data = false) {
 		this.tree.uncheckAll();
@@ -175,7 +175,7 @@ class main_page {
 						email: {
 							email: email,
 							send_interval: (this.clone_email) ? this.get_email_interval() : this.settings.send_interval,
-							test: '0',
+							active: '1',
 						},
 						codes: (this.clone_email) ? this.export_table() : {},
 						vehicles: (this.clone_email) ? this.export_tree() : {},
@@ -220,14 +220,14 @@ class main_page {
 		this.email_data[this.email]['codes'] = this.export_table();
 		this.email_data[this.email]['vehicles'] = this.export_tree();
 		this.email_data[this.email]['email']['send_interval'] = this.get_email_interval();
-		this.email_data[this.email]['email']['test'] = this.get_email_test()
+		this.email_data[this.email]['email']['active'] = this.get_email_active()
 		let el = (e) ? $(e.target) : false;
 
 		this.ajax_call('save_email', {
 			email: {
 				email: this.email,
 				send_interval: this.get_email_interval(),
-				test: this.get_email_test()
+				active: this.get_email_active()
 
 			},
 			codes: this.email_data[this.email]['codes'],

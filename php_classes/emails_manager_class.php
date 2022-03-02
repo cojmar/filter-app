@@ -217,6 +217,8 @@ class emails_manager_class
 
                 if ($change) {
                     $this->db->array_insert_update($data['email'], "emails");
+                    if ($data['email']['active'] == '0' && $change) $action = 'delete';
+                    if ($data['email']['active'] == '1' && $change) $action = 'insert';
                     $this->log_action($data['email']['email'], $action);
                 }
                 $email_id = $this->get_email_id($data['email']['email']);
@@ -291,12 +293,17 @@ class emails_manager_class
         return false;
     }
 
-    function get_emails()
+    function get_emails($all = true)
     {
         $sql = "
             SELECT `email`
             FROM `emails`
         ";
+        if (empty($all)) {
+            $sql .= "
+                WHERE `active`=1
+            ";
+        }
         $emails = array();
         $db_mails = $this->db->query($sql)->fetchAll();
         foreach ($db_mails as $mail_item) {
