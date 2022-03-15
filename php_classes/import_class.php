@@ -201,6 +201,7 @@ class import_class
                 }
             }
         }
+        $this->import_from_json();
         $builder = new build_class();
         $builder->build();
     }
@@ -219,8 +220,8 @@ class import_class
                 }
                 if ($add) $ret[$row['system']."_".$row['identifier']] = array(
                     "code"=>$row['identifier'],
-                    "type"=>"event",                    
-                    "system"=>$row['system'],
+                    "type"=>($row['system']=='Event Code')?"event":"failure",
+                    "system"=>"EXTERNAL",
                     "level"=>$row['level'],
                     "icon"=>$row['icon'],
                     "description"=>$row['text'],                    
@@ -231,9 +232,12 @@ class import_class
         }
         $ret = array_values($ret);
         foreach($ret as $item){
-            //$this->db->array_insert_update($item, "codes");
-        }
-        debug($ret);
-        return $ret;
+            if (empty($item['description'])) $item['description'] = '-';
+            if (empty($item['level'])) $item['level'] = 'grey';
+            if (empty($item['icon'])) $item['icon'] = '';
+            $this->db->array_insert_update($item, "codes");    
+        } 
+        //debug($ret);
+        //return $ret;
     }
 }
