@@ -10,7 +10,8 @@ class router
 	}
 	public function test_json()
 	{
-		$update = new update_class();
+		$importer = new import_class();
+		debug($importer->import_from_json());
 	}
 	protected function cron()
 	{
