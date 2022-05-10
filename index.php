@@ -44,7 +44,7 @@ class router
 	{
 		$res = new resources_class();
 		$out = $res->run($this->url_data);
-		if (empty($out['response']['vehicles'])) $out['response']['vehicles'] = (object)$out['response']['vehicles'];
+		if (isset($out['response']['vehicles']) && empty($out['response']['vehicles'])) $out['response']['vehicles'] = (object)$out['response']['vehicles'];
 		//debug($out);
 		json_output($out);
 	}
