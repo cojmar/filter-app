@@ -206,38 +206,39 @@ class import_class
         $builder->build();
     }
 
-    function import_from_json()
+    function import_from_json($debug = false)
     {
         $tmp = $this->get_files($this->json_files_path);
         $ret = array();
         foreach ($tmp as $file) {
-            if(end(explode("_",$file))!='DE.json') continue;
-            $file_data =  json_decode(file_get_contents($file), 1);            
-            foreach($file_data as $row){
+            if (end(explode("_", $file)) != 'DE.json') continue;
+            $file_data =  json_decode(file_get_contents($file), 1);
+            foreach ($file_data as $row) {
                 $add = true;
-                if (isset($ret[$row['system']."_".$row['identifier']])){
-                    if (!empty($ret[$row['system']."_".$row['identifier']]['description'])) $add = false;
+                if (isset($ret[$row['system'] . "_" . $row['identifier']])) {
+                    if (!empty($ret[$row['system'] . "_" . $row['identifier']]['description'])) $add = false;
                 }
-                if ($add) $ret[$row['system']."_".$row['identifier']] = array(
-                    "code"=>$row['identifier'],
-                    "type"=>($row['system']=='Event Code')?"event":"failure",
-                    "system"=>"EXTERNAL",
-                    "level"=>$row['level'],
-                    "icon"=>$row['icon'],
-                    "description"=>$row['text'],                    
+                if ($add) $ret[$row['system'] . "_" . $row['identifier']] = array(
+                    "code" => $row['identifier'],
+                    "type" => ($row['system'] == 'Event Code') ? "event" : "failure",
+                    "system" => "EXTERNAL",
+                    "level" => $row['level'],
+                    "icon" => $row['icon'],
+                    "description" => $row['text'],
                 );
-                
-                
             }
         }
         $ret = array_values($ret);
-        foreach($ret as $item){
-            if (empty($item['description'])) $item['description'] = '-';
-            if (empty($item['level'])) $item['level'] = 'grey';
-            if (empty($item['icon'])) $item['icon'] = '';
-            $this->db->array_insert_update($item, "codes");    
-        } 
-        //debug($ret);
+        if (empty($debug)) {
+            foreach ($ret as $item) {
+                if (empty($item['description'])) $item['description'] = '-';
+                if (empty($item['level'])) $item['level'] = 'grey';
+                if (empty($item['icon'])) $item['icon'] = '';
+                $this->db->array_insert_update($item, "codes");
+            }
+        } else {
+            debug($ret);
+        }
         //return $ret;
     }
 }

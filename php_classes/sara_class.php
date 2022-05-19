@@ -4,7 +4,7 @@ class sara_class
     function __construct()
     {
         $this->no_login_ips = array(
-            //'86.121.167.156',
+            //'5.12.249.60',
             '127.0.0.1',
             '5.2.149.9'
         );

@@ -135,8 +135,17 @@ class router
 		$builder = new build_class();
 		$builder->build();
 	}
-	protected function test()
+	public function test()
 	{
+		$imp = new import_class();
+
+		$imp->import_from_json(true);
+
+		return;
+
+		$update = new update_class(false);
+		debug($update->get_json_codes_list());
+		return;
 		$ret = $this->db->table_columns('codes');
 		if (empty($ret)) {
 			debug("DB not working!");
